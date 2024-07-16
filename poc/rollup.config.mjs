@@ -6,13 +6,15 @@ import nodeResolve from '@rollup/plugin-node-resolve'
 import nodePolyfills from 'rollup-plugin-polyfill-node'
 import nodeExternals from 'rollup-plugin-node-externals'
 
-export default {
-	input: [
-    'app/**/*.ts',
-    'core/**/*.ts',
-  ],
+const inputs = {
+  app: 'app/**/*.ts',
+  core: 'core/**/*.ts',
+}
+
+export default Object.entries(inputs).map(([name, input]) => ({
+	input,
 	output: [
-    { format: 'es', file: `dist/stone.mjs` }
+    { format: 'es', file: `dist/${name}.js` }
   ],
   plugins: [
     multi(),
@@ -37,4 +39,4 @@ export default {
       ]
     })
   ]
-}
+}))

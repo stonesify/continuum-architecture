@@ -11,10 +11,11 @@
     // "allowImportingTsExtensions": true,
     // Tells TypeScript to read JS files, as
     // normally they are ignored as source files
-    // "allowJs": true,
+    "allowJs": true,
     // Target ES Version
     // Generate d.ts files
     "strictNullChecks": true,
+    "noEmit": true,
     "declaration": true,
     // This compiler run should
     // only output d.ts files
@@ -25,6 +26,8 @@
     "outDir": "dist/types",
     // go to js file when using IDE functions like
     // "Go to Definition" in VSCode
-    "declarationMap": true
+    "declarationMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

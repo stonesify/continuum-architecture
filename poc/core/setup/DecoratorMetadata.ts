@@ -1,14 +1,14 @@
-import { isConstructor } from './utils'
+import { isConstructor } from '../utils'
 
 /**
- * A unique symbol key for storing blueprint metadata.
- *
- * This key is used to associate metadata with blueprints in the context of the
- * framework's introspection and reflection processes.
- *
+ * A unique symbol key for storing metadata.
+ * 
+ * This key is used to associate metadata with various elements in the context of the framework's
+ * introspection and reflection processes.
+ * 
  * @constant {symbol}
  */
-export const BLUEPRINTS_KEY = Symbol.for('StoneBlueprints')
+export const METADATA_KEY: symbol = Symbol.metadata || Symbol.for('Symbol.metadata');
 
 /**
  * Utils for handling decorator metadata.
@@ -48,7 +48,7 @@ export function add (context: DecoratorContext, key: string | number | symbol, v
  * @returns {boolean} True if the metadata exists, false otherwise.
  */
 export function has (Class: Function, key: string | number | symbol): boolean {
-  return Class[Symbol.metadata]?.[key] !== undefined
+  return Class[METADATA_KEY]?.[key] !== undefined
 }
 
 /**
@@ -61,7 +61,7 @@ export function has (Class: Function, key: string | number | symbol): boolean {
  * @returns {T} The metadata value or the fallback value.
  */
 export function get<T> (Class: Function, key: string | number | symbol, fallback?: T): T {
-  return (Class[Symbol.metadata]?.[key] ?? fallback) as T
+  return (Class[METADATA_KEY]?.[key] ?? fallback) as T
 }
 
 /**
@@ -72,7 +72,7 @@ export function get<T> (Class: Function, key: string | number | symbol, fallback
  * @returns {unknown} All metadata or the fallback value.
  */
 export function all (Class: Function, fallback: unknown = null): unknown {
-  return Class[Symbol.metadata] ?? fallback
+  return Class[METADATA_KEY] ?? fallback
 }
 
 /**
@@ -84,7 +84,7 @@ export function all (Class: Function, fallback: unknown = null): unknown {
  */
 export function remove (Class: Function, key: string | number | symbol): void {
   if (has(Class, key)) {
-    const metadata = Class[Symbol.metadata]
+    const metadata = Class[METADATA_KEY]
     ;(metadata != null) && Reflect.deleteProperty(metadata, key)
   }
 }
@@ -94,10 +94,10 @@ export function remove (Class: Function, key: string | number | symbol): void {
  *
  * @param   {(string | number | symbol)} key - The key for the metadata.
  * @param   {unknown} [options=null] - The options to set.
- * @returns {ClassDecorator} The class decorator.
+ * @returns {Decorator<T, void>} The class decorator.
  */
-export function classDecorator (key: string | number | symbol, options: DecoratorOptions<Function> = {}): ClassDecorator {
-  return (value: Function, context: DecoratorContext): void => {
+export function classDecorator<T extends Function>(key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
+  return (value: T, context: DecoratorContext): void => {
     if (context.kind === 'class' || isConstructor(value)) {
       set(context, key, typeof options === 'function' ? options(value, context) : options)
     } else {
@@ -111,10 +111,10 @@ export function classDecorator (key: string | number | symbol, options: Decorato
  *
  * @param   {(string | number | symbol)} key - The key for the metadata.
  * @param   {unknown} [options=null] - The options to set.
- * @returns {MethodDecorator} The method decorator.
+ * @returns {Decorator<T, void>} The method decorator.
  */
-export function methodDecorator (key: string | number | symbol, options: DecoratorOptions<Function> = {}): MethodDecorator {
-  return (value: Function, context: DecoratorContext): void => {
+export function methodDecorator<T extends Function>(key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
+  return (value: T, context: DecoratorContext): void => {
     if (context.kind === 'method') {
       set(context, key, typeof options === 'function' ? options(value, context) : options)
     } else {
@@ -128,10 +128,10 @@ export function methodDecorator (key: string | number | symbol, options: Decorat
  *
  * @param   {(string | number | symbol)} key - The key for the metadata.
  * @param   {unknown} [options=null] - The options to set.
- * @returns {PropertyDecorator} The field decorator.
+ * @returns {Decorator<T, void>} The field decorator.
  */
-export function propertyDecorator (key: string | number | symbol, options: DecoratorOptions<undefined> = {}): PropertyDecorator {
-  return (value: undefined, context: DecoratorContext): void => {
+export function propertyDecorator<T>(key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
+  return (value: T, context: DecoratorContext): void => {
     if (context.kind === 'field') {
       set(context, key, typeof options === 'function' ? options(value, context) : options)
     } else {
@@ -156,34 +156,7 @@ export function propertyDecorator (key: string | number | symbol, options: Decor
    * @param {DecoratorContext} context - The context in which the decorator is applied.
    * @returns {V} The decorated value or void.
    */
-export type Decorator<U, V = Function> = (value: U, context: DecoratorContext) => V
-
-/**
- * A class decorator function type.
- *
- * @param   {Function} value - The class being decorated.
- * @param   {DecoratorContext} context - The context in which the decorator is applied.
- * @returns {Function} The decorated class or void.
- */
-export type ClassDecorator = Decorator<Function, Function | void>
-
-/**
- * A method decorator function type.
- *
- * @param   {Function} value - The method being decorated.
- * @param   {DecoratorContext} context - The context in which the decorator is applied.
- * @returns {Function} The decorated method or void.
- */
-export type MethodDecorator = Decorator<Function, Function | void>
-
-/**
- * A property decorator function type.
- *
- * @param   {undefined} value - The property being decorated.
- * @param   {DecoratorContext} context - The context in which the decorator is applied.
- * @returns {void} The decorated property or void.
- */
-export type PropertyDecorator = Decorator<undefined, void>
+export type Decorator<U, V = Function> = (value: U, context?: DecoratorContext) => V
 
 /**
  * A callback function type for decorator options.

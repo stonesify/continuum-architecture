@@ -1,11 +1,11 @@
-import { Config } from '../Config'
+import { Config } from './Config'
 import { merge } from 'ts-deepmerge'
 import { Middleware } from '../types'
+import { Blueprint } from './Blueprint'
 import { isConstructor, isFunction } from '../utils'
 import { isConfiguration } from './decorators/Configuration'
 import { isConfigMiddleware } from './decorators/ConfigMiddleware'
 import { getStoneAppOptions, isStoneApp } from './decorators/StoneApp'
-import { Blueprint } from '../Blueprint'
 
 /**
  * Class representing a ConfigBuilder.
@@ -42,7 +42,7 @@ export class ConfigBuilder {
    *
    * @type {Function[]}
   */
-  private _classes: Function[] = []
+  private _classes: Function[]
 
   /**
    * Gather classes from modules.
@@ -52,8 +52,8 @@ export class ConfigBuilder {
   private get classes (): Function[] {
     this._classes ??= Object
       .values(this._modules)
-      .filter((module: unknown) => isFunction(module))
-      .map((module: unknown) => module as Function)
+      .flatMap((module) => Object.values(module))
+      .filter((module) => isFunction(module))
 
     return this._classes
   }
@@ -127,7 +127,7 @@ export class ConfigBuilder {
     const middleware = this.gatherConfigMiddleware()
     const imperative = this.gatherImperativeBlueprints().reduce((prev, curr) => merge(prev, curr), {})
     const declarative = this.gatherDeclarativeBlueprints().reduce((prev, curr) => merge(prev, curr), {})
-
+    
     return new Config(merge(declarative, imperative, { stone: { builder: { middleware } } }))
   }
 
@@ -152,7 +152,7 @@ export class ConfigBuilder {
       .filter((Class: Function) => isStoneApp(Class))
       .flatMap((Class: Function) => {
         const options = getStoneAppOptions(Class)
-        return [[Blueprint, { ...options, imports: undefined }], ...(options.imports ?? [])]
+        return [[Blueprint, { stone: options.stone }], ...options.imports]
       })
       .map(([blueprint, options]) => merge(blueprint, options as any))
   }
@@ -165,11 +165,7 @@ export class ConfigBuilder {
   private gatherImperativeBlueprints (): Array<Record<string, unknown>> {
     return this.classes
       .filter((Class: Function) => isConfiguration(Class))
-      .map((Class: Function) => Class.prototype)
-      .map((blueprint) => {
-        Reflect.deleteProperty(blueprint, 'constructor')
-        return blueprint
-      })
+      .map((Class: Function) => Reflect.construct(Class, []))
   }
 }
 

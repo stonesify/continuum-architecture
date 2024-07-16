@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
+    "start": "npm run build && node bootstrap.mjs",
     "lint": "ts-standard core",
     "lint:fix": "ts-standard --fix core"
   },
