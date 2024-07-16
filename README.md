@@ -124,7 +124,9 @@ Continuum Architecture provides a robust, flexible, and scalable solution for mo
 
 ## Call to Action
 
-We invite you to join us in building the future of web application architecture. Contribute to the Continuum Architecture, participate in discussions, and help us create a universal standard for scalable, flexible, and cost-effective applications.
+We invite you to join us in building the future of web application architecture. 
+Contribute to the Continuum Architecture, participate in discussions, 
+and help us create a universal standard for scalable, flexible, and cost-effective applications.
 
 To understand our guiding principles and vision, please read the [Manifesto](MANIFESTO.md). 
 For proposing new ideas or changes, refer to our [RFC](rfcs/) process. Together, we can achieve great things.

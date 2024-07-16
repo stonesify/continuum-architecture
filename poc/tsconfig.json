@@ -1,0 +1,30 @@
+{
+  // https://www.typescriptlang.org/docs/handbook/declaration-files/dts-from-js.html
+  "include": [
+    "app/**/*.ts",
+    "core/**/*.ts",
+  ],
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    // "allowImportingTsExtensions": true,
+    // Tells TypeScript to read JS files, as
+    // normally they are ignored as source files
+    // "allowJs": true,
+    // Target ES Version
+    // Generate d.ts files
+    "strictNullChecks": true,
+    "declaration": true,
+    // This compiler run should
+    // only output d.ts files
+    // "emitDeclarationOnly": true,
+    // Types should go into this directory.
+    // Removing this would place the .d.ts files
+    // next to the .js files
+    "outDir": "dist/types",
+    // go to js file when using IDE functions like
+    // "Go to Definition" in VSCode
+    "declarationMap": true
+  }
+}
