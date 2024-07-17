@@ -11,6 +11,16 @@ import { isConstructor } from '../utils'
 export const METADATA_KEY: symbol = Symbol.metadata || Symbol.for('Symbol.metadata');
 
 /**
+ * A unique symbol key for storing blueprint metadata.
+ *
+ * This key is used to associate metadata with blueprints in the context of the
+ * framework's introspection and reflection processes.
+ *
+ * @constant {symbol}
+ */
+export const BLUEPRINTS_KEY = Symbol.for('Stone.Blueprints')
+
+/**
  * Utils for handling decorator metadata.
  *
  * @author Mr. Stone <evensstone@gmail.com>
@@ -136,6 +146,64 @@ export function propertyDecorator<T>(key: string | number | symbol, options: Dec
       set(context, key, typeof options === 'function' ? options(value, context) : options)
     } else {
       throw new TypeError('This decorator can only be applied at field level')
+    }
+  }
+}
+
+/**
+ * Adds a blueprint to the metadata array for the given key in the context.
+ *
+ * @param   {DecoratorContext} context - The decorator context.
+ * @param   {[Record<string, unknown>, Record<string, unknown>]} blueprint - The blueprint class.
+ * @returns {void}
+ */
+export function addBlueprint (context: DecoratorContext, blueprint: [Record<string, unknown>, Record<string, unknown>]): void {
+  add(context, BLUEPRINTS_KEY, blueprint)
+}
+
+/**
+ * Adds a blueprint to the metadata array for the given key in the context.
+ *
+ * @param   {DecoratorContext} context - The decorator context.
+ * @param   {[Record<string, unknown>, Record<string, unknown>][]} blueprints - The blueprint class.
+ * @returns {void}
+ */
+export function addBlueprints (context: DecoratorContext, blueprints: [Record<string, unknown>, Record<string, unknown>][]): void {
+  blueprints.forEach((blueprint) => add(context, BLUEPRINTS_KEY, blueprint))
+}
+
+/**
+ * Gets all blueprint metadata from the class.
+ *
+ * @param   {Function} Class - The class to get blueprint metadata from.
+ * @returns {[Record<string, unknown>, Record<string, unknown>][]} The list of blueprint functions.
+ */
+export function getBlueprints<T extends Function>(Class: T): [Record<string, unknown>, Record<string, unknown>][] {
+  return get(Class, BLUEPRINTS_KEY, [])
+}
+
+/**
+ * Checks if the class has blueprint metadata.
+ *
+ * @param   {Function} Class - The class to check.
+ * @returns {boolean} True if blueprints metadata exists, false otherwise.
+ */
+export function hasBlueprints<T extends Function>(Class: T): boolean {
+  return has(Class, BLUEPRINTS_KEY)
+}
+
+/**
+ * Creates a class-level decorator to set blueprints metadata.
+ *
+ * @param   {[Record<string, unknown>, Record<string, unknown>][]} blueprints - The blueprint function.
+ * @returns {Decorator<T, void>} The class decorator.
+ */
+export function blueprintClassDecorator<T extends Function>(blueprints: [Record<string, unknown>, Record<string, unknown>][]): Decorator<T, void> {
+  return (value: T, context: DecoratorContext): void => {
+    if (context.kind === 'class' || isConstructor(value)) {
+      addBlueprints(context, blueprints)
+    } else {
+      throw new TypeError('This decorator can only be applied at class level.')
     }
   }
 }

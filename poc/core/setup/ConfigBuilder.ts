@@ -1,11 +1,10 @@
 import { Config } from './Config'
 import { merge } from 'ts-deepmerge'
-import { Middleware } from '../types'
-import { Blueprint } from './Blueprint'
+import { SetupBlueprint } from './Blueprint'
 import { isConstructor, isFunction } from '../utils'
 import { isConfiguration } from './decorators/Configuration'
 import { isConfigMiddleware } from './decorators/ConfigMiddleware'
-import { getStoneAppOptions, isStoneApp } from './decorators/StoneApp'
+import { getBlueprints, hasBlueprints } from './DecoratorMetadata'
 
 /**
  * Class representing a ConfigBuilder.
@@ -18,24 +17,9 @@ export class ConfigBuilder {
   /**
    * Feature modules.
    *
-   * @type {FeatureModules}
+   * @type {unknown[]}
   */
-  private _modules: FeatureModules = {}
-
-  /**
-   * Default middleware priority.
-   * The priority determine the middleware execution order.
-   *
-   * @type {number}
-  */
-  private _defaultPriority: number = 10
-
-  /**
-   * Config Middleware.
-   *
-   * @type {Middleware<BlueprintContext>[]}
-  */
-  private _middleware: Array<Middleware<BlueprintContext>> = []
+  private _modules: unknown[] = []
 
   /**
    * Modules classes.
@@ -50,44 +34,21 @@ export class ConfigBuilder {
    * @type {Function[]}
   */
   private get classes (): Function[] {
-    this._classes ??= Object
-      .values(this._modules)
-      .flatMap((module) => Object.values(module))
+    this._classes ??= this._modules
       .filter((module) => isFunction(module))
+      .map((module) => module as Function)
 
     return this._classes
   }
 
   /**
-   * Add configuration middleware.
-   *
-   * @param   {(Middleware<BlueprintContext> | Middleware<BlueprintContext>[])} middleware
-   * @returns {ConfigBuilder}
-  */
-  middleware (middleware: Middleware<BlueprintContext> | Array<Middleware<BlueprintContext>>): ConfigBuilder {
-    this._middleware = this._middleware.concat(middleware)
-    return this
-  }
-
-  /**
-   * Add default middleware priority.
-   *
-   * @param   {number} priority
-   * @returns {ConfigBuilder}
-  */
-  defaultPriority (priority: number): ConfigBuilder {
-    this._defaultPriority = priority
-    return this
-  }
-
-  /**
    * Add feature modules.
    *
-   * @param   {FeatureModules} modules
+   * @param   {Record<string, unknown>[]} modules
    * @returns {ConfigBuilder}
   */
-  modules (modules: FeatureModules): ConfigBuilder {
-    this._modules = { ...this._modules, ...modules }
+  modules (...modules: Record<string, unknown>[]): ConfigBuilder {
+    this._modules = this._modules.concat(modules.flatMap((module) => Object.values(module)))
     return this
   }
 
@@ -101,7 +62,7 @@ export class ConfigBuilder {
     const context = { blueprint, modules: this._modules }
     const middleware = blueprint.get<Function[]>('stone.builder.middleware', [])
 
-    const runMiddleware = (index: number): BlueprintContext => {
+    const runMiddleware = (index: number = 0): BlueprintContext => {
       if (index < middleware.length) {
         const currentMiddleware = middleware[index]
         if (isConstructor(currentMiddleware)) {
@@ -115,31 +76,35 @@ export class ConfigBuilder {
       }
     }
 
-    return runMiddleware(0).blueprint
+    return runMiddleware().blueprint
   }
 
   /**
-   * Get Config Middleware.
+   * Get Stone blueprint bag.
    *
    * @returns {Config}
   */
   private getBlueprint (): Config {
-    const middleware = this.gatherConfigMiddleware()
-    const imperative = this.gatherImperativeBlueprints().reduce((prev, curr) => merge(prev, curr), {})
-    const declarative = this.gatherDeclarativeBlueprints().reduce((prev, curr) => merge(prev, curr), {})
+    const stoneBlueprint = this
+      .gatherSetupBlueprint()
+      .concat(this.gatherDeclarativeBlueprints(), this.gatherImperativeBlueprints())
+      .reduce((prev, curr) => merge(prev, curr), {})
     
-    return new Config(merge(declarative, imperative, { stone: { builder: { middleware } } }))
+    return new Config(stoneBlueprint)
   }
 
   /**
-   * Get configuration middleware from `@ConfigMiddleware()` decorator.
+   * Gather Setup Blueprint.
+   * Get configuration middleware first from `@ConfigMiddleware()` decorator
+   * And push SetupBlueprint to array.
    *
-   * @returns {Middleware<BlueprintContext>[]}
+   * @returns {Record<string, unknown>[]}
   */
-  private gatherConfigMiddleware (): Array<Middleware<BlueprintContext>> {
+  private gatherSetupBlueprint (): Array<Record<string, unknown>> {
     return this.classes
       .filter((Class: Function) => isConfigMiddleware(Class))
-      .map((Class: Function) => Class as Middleware<BlueprintContext>)
+      .map((Class: Function) => ({ stone: { builder: { middleware: [Class] } } }))
+      .concat(SetupBlueprint)
   }
 
   /**
@@ -149,12 +114,9 @@ export class ConfigBuilder {
   */
   private gatherDeclarativeBlueprints (): Array<Record<string, unknown>> {
     return this.classes
-      .filter((Class: Function) => isStoneApp(Class))
-      .flatMap((Class: Function) => {
-        const options = getStoneAppOptions(Class)
-        return [[Blueprint, { stone: options.stone }], ...options.imports]
-      })
-      .map(([blueprint, options]) => merge(blueprint, options as any))
+      .filter((Class: Function) => hasBlueprints(Class))
+      .flatMap((Class: Function) => getBlueprints(Class))
+      .map(([blueprint, options]) => merge(blueprint, options))
   }
 
   /**
@@ -167,24 +129,6 @@ export class ConfigBuilder {
       .filter((Class: Function) => isConfiguration(Class))
       .map((Class: Function) => Reflect.construct(Class, []))
   }
-}
-
-/**
- * User-defined modules in the feature layer.
- *
- * This interface represents a collection of modules, where each module can be
- * a function, a string, a number, a boolean, an array of these types, or nested
- * feature modules.
- */
-export interface FeatureModules {
-  /**
-   * Module key pair value.
-   *
-   * The key is a string that identifies the module, and the value can be one of
-   * several types: Function, string, number, boolean, an array of these types,
-   * or nested feature modules.
-   */
-  readonly [key: string]: Function | Function[] | string | string[] | number | number[] | boolean | boolean[] | FeatureModules
 }
 
 /**
@@ -204,7 +148,7 @@ export interface BlueprintContext {
   /**
    * Feature modules.
    *
-   * @type {FeatureModules}
+   * @type {unknown[]}
    */
-  readonly modules: FeatureModules
+  readonly modules: unknown[]
 }

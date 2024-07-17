@@ -1,4 +1,4 @@
-import { StoneApp } from "../core/setup/decorators/StoneApp";
+import { StoneApp } from "../core/initialization/setup/decorators/StoneApp";
 
 @StoneApp({ env: 'dev' })
 export class Application {

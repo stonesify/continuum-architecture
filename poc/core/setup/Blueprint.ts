@@ -1,10 +1,7 @@
 /**
- * Stone Blueprint.
+ * Setup Blueprint.
 */
-export const Blueprint = {
-  // Import packages blueprint
-  imports: [],
-
+export const SetupBlueprint = {
   // Stone namespace configuration options.
   stone: {
     env: null,
@@ -14,51 +11,9 @@ export const Blueprint = {
 
     // Setup layer configuration options.
     builder: {
-      middleware: [],
       errorHandler: null,
+      middleware: new Array(),
       defaultMiddlewarePriority: 10
-    },
-
-    // Integration layer configuration options.
-    adapters: [
-      // {
-      //   mapper: {
-      //     input: null,
-      //     output: null
-      //   },
-      //   middleware: {
-      //     input: [],
-      //     output: []
-      //   },
-      //   current: false,
-      //   errorHandler: null,
-      //   incommingEvent: null,
-      // }
-    ],
-
-    // Initialization layer configuration options.
-    kernel: {
-      handler: null,
-      middleware: {
-        skip: false,
-        event: [],
-        response: [],
-        terminate: [],
-        defaultPriority: 10
-      },
-      aliases: {},
-      services: [],
-      listeners: {},
-      providers: [],
-      subscribers: [],
-      errorHandler: null
     }
-
-    // http: {},
-    // router: {},
-
-  },
-
-  // Feature layer configuration options.
-  app: {}
+  }
 }
