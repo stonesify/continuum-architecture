@@ -2,13 +2,13 @@ import { isConstructor } from '../utils'
 
 /**
  * A unique symbol key for storing metadata.
- * 
+ *
  * This key is used to associate metadata with various elements in the context of the framework's
  * introspection and reflection processes.
- * 
+ *
  * @constant {symbol}
  */
-export const METADATA_KEY: symbol = Symbol.metadata || Symbol.for('Symbol.metadata');
+export const METADATA_KEY: symbol = Symbol.metadata || Symbol.for('Symbol.metadata')
 
 /**
  * A unique symbol key for storing blueprint metadata.
@@ -106,7 +106,7 @@ export function remove (Class: Function, key: string | number | symbol): void {
  * @param   {unknown} [options=null] - The options to set.
  * @returns {Decorator<T, void>} The class decorator.
  */
-export function classDecorator<T extends Function>(key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
+export function classDecorator<T extends Function> (key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
   return (value: T, context: DecoratorContext): void => {
     if (context.kind === 'class' || isConstructor(value)) {
       set(context, key, typeof options === 'function' ? options(value, context) : options)
@@ -123,7 +123,7 @@ export function classDecorator<T extends Function>(key: string | number | symbol
  * @param   {unknown} [options=null] - The options to set.
  * @returns {Decorator<T, void>} The method decorator.
  */
-export function methodDecorator<T extends Function>(key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
+export function methodDecorator<T extends Function> (key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
   return (value: T, context: DecoratorContext): void => {
     if (context.kind === 'method') {
       set(context, key, typeof options === 'function' ? options(value, context) : options)
@@ -140,7 +140,7 @@ export function methodDecorator<T extends Function>(key: string | number | symbo
  * @param   {unknown} [options=null] - The options to set.
  * @returns {Decorator<T, void>} The field decorator.
  */
-export function propertyDecorator<T>(key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
+export function propertyDecorator<T> (key: string | number | symbol, options: DecoratorOptions<T> = {}): Decorator<T, void> {
   return (value: T, context: DecoratorContext): void => {
     if (context.kind === 'field') {
       set(context, key, typeof options === 'function' ? options(value, context) : options)
@@ -168,7 +168,7 @@ export function addBlueprint (context: DecoratorContext, blueprint: [Record<stri
  * @param   {[Record<string, unknown>, Record<string, unknown>][]} blueprints - The blueprint class.
  * @returns {void}
  */
-export function addBlueprints (context: DecoratorContext, blueprints: [Record<string, unknown>, Record<string, unknown>][]): void {
+export function addBlueprints (context: DecoratorContext, blueprints: Array<[Record<string, unknown>, Record<string, unknown>]>): void {
   blueprints.forEach((blueprint) => add(context, BLUEPRINTS_KEY, blueprint))
 }
 
@@ -178,7 +178,7 @@ export function addBlueprints (context: DecoratorContext, blueprints: [Record<st
  * @param   {Function} Class - The class to get blueprint metadata from.
  * @returns {[Record<string, unknown>, Record<string, unknown>][]} The list of blueprint functions.
  */
-export function getBlueprints<T extends Function>(Class: T): [Record<string, unknown>, Record<string, unknown>][] {
+export function getBlueprints<T extends Function> (Class: T): Array<[Record<string, unknown>, Record<string, unknown>]> {
   return get(Class, BLUEPRINTS_KEY, [])
 }
 
@@ -188,7 +188,7 @@ export function getBlueprints<T extends Function>(Class: T): [Record<string, unk
  * @param   {Function} Class - The class to check.
  * @returns {boolean} True if blueprints metadata exists, false otherwise.
  */
-export function hasBlueprints<T extends Function>(Class: T): boolean {
+export function hasBlueprints<T extends Function> (Class: T): boolean {
   return has(Class, BLUEPRINTS_KEY)
 }
 
@@ -198,7 +198,7 @@ export function hasBlueprints<T extends Function>(Class: T): boolean {
  * @param   {[Record<string, unknown>, Record<string, unknown>][]} blueprints - The blueprint function.
  * @returns {Decorator<T, void>} The class decorator.
  */
-export function blueprintClassDecorator<T extends Function>(blueprints: [Record<string, unknown>, Record<string, unknown>][]): Decorator<T, void> {
+export function blueprintClassDecorator<T extends Function> (blueprints: Array<[Record<string, unknown>, Record<string, unknown>]>): Decorator<T, void> {
   return (value: T, context: DecoratorContext): void => {
     if (context.kind === 'class' || isConstructor(value)) {
       addBlueprints(context, blueprints)

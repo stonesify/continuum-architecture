@@ -1,33 +1,24 @@
 import { get, set, has, mergeWith } from 'lodash-es'
 
 /**
- * Class representing a Config.
+ * Class representing a DataContainer.
  *
  * @author Mr. Stone <evensstone@gmail.com>
  */
-export class Config {
+export class DataContainer<U = unknown> {
   /**
-   * @type {Record<string, unknown>}
-   */
-  private _items: Record<string, unknown>
-
-  /**
-   * Create a Config.
+   * Create a DataContainer.
    *
-   * @param {Record<string, unknown>} [items={}]
+   * @param {U} [items={}]
    */
-  constructor (items: Record<string, unknown> = {}) {
-    this._items = { ...items, __proto__: null }
-  }
-
-  /**
-   * All of the configuration items.
-   *
-   * @public
-   * @returns {Record<string, unknown>}
-   */
-  get items (): Record<string, unknown> {
-    return this._items
+  constructor (protected readonly items: U) {
+    return new Proxy(this, {
+      get (target, prop, receiver) {
+        return Reflect.has(target, prop)
+          ? Reflect.get(target, prop, receiver)
+          : Reflect.apply(target.get, target, [prop])
+      }
+    })
   }
 
   /**
@@ -42,7 +33,7 @@ export class Config {
       return this.getMany(key) as T
     }
 
-    return get(this._items, key, fallback)
+    return get(this.items, key, fallback)
   }
 
   /**
@@ -53,7 +44,7 @@ export class Config {
    */
   getMany (keys: string[] | Record<string, unknown>): Record<string, unknown> {
     const entries = Array.isArray(keys) ? keys.map(v => [v]) : Object.entries(keys)
-    return entries.reduce((results, [key, fallback = null]) => ({ ...results, [key]: get(this._items, key, fallback) }), {})
+    return entries.reduce((results, [key, fallback = null]) => ({ ...results, [key]: get(this.items, key, fallback) }), {})
   }
 
   /**
@@ -63,7 +54,7 @@ export class Config {
    * @returns {boolean}
    */
   has (key: string | string[] | Record<string, unknown>): boolean {
-    return has(this._items, key)
+    return has(this.items, key)
   }
 
   /**
@@ -77,7 +68,7 @@ export class Config {
     key = typeof key === 'object' ? key : { [key]: value }
 
     for (const [name, val] of Object.entries(key)) {
-      set(this._items, name, val)
+      set(this.items, name, val)
     }
 
     return this
@@ -103,18 +94,7 @@ export class Config {
    *
    * @returns {Record<string, unknown>}
    */
-  all (): Record<string, unknown> {
-    return this._items
-  }
-
-  /**
-   * Clear all of the configuration items.
-   *
-   * @returns {this}
-   */
-  clear (): this {
-    this._items = Object.create(null)
-
-    return this
+  all (): U {
+    return this.items
   }
 }

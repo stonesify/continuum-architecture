@@ -1,3 +1,5 @@
+import { Adapter } from '../Adapter'
+
 /**
  * Integration Blueprint.
 */
@@ -6,19 +8,18 @@ export const IntegrationBlueprint = {
   stone: {
     // Integration layer configuration options.
     adapters: [
-      // {
-      //   mapper: {
-      //     input: null,
-      //     output: null
-      //   },
-      //   middleware: {
-      //     input: [],
-      //     output: []
-      //   },
-      //   current: false,
-      //   errorHandler: null,
-      //   incommingEvent: null,
-      // }
+      [
+        Adapter,
+        {
+          middleware: {
+            incoming: [],
+            outgoing: []
+          },
+          default: true,
+          current: false,
+          errorHandler: null
+        }
+      ]
     ]
   }
 }

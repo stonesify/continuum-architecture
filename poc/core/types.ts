@@ -8,7 +8,7 @@ export abstract class AbstractClassBasedMiddleware<T> {
 
 export type FunctionalMiddleware<T> = (context: T, next: (context: T) => T) => T
 
-export type MiddlewareNext<T> = (context: T) => T
+export type NextMiddleware<T> = (context: T) => T
 
 export type Middleware<T> = FunctionalMiddleware<T> | ClassBasedMiddleware<T> | AbstractClassBasedMiddleware<T>
 

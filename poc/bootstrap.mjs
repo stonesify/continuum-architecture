@@ -3,4 +3,4 @@ import { ConfigBuilder } from "./dist/core.js";
 
 const blueprint = new ConfigBuilder().modules(app).build()
 
-console.log(blueprint.all().stone.kernel)
+console.log(blueprint.all().stone.adapters[0])

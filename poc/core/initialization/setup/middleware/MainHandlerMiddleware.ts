@@ -1,5 +1,5 @@
-import { isStoneApp } from "../decorators/StoneApp";
-import { BlueprintContext } from "../../../setup/ConfigBuilder";
+import { isStoneApp } from '../decorators/StoneApp'
+import { BlueprintContext } from '../../../setup/ConfigBuilder'
 
 export class MainHandlerMiddleware<T extends BlueprintContext> {
   handle (context: T, next: (context: T) => T): T {

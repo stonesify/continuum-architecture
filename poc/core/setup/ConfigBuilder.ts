@@ -1,4 +1,4 @@
-import { Config } from './Config'
+import { DataContainer } from '../DataContainer'
 import { merge } from 'ts-deepmerge'
 import { SetupBlueprint } from './Blueprint'
 import { isConstructor, isFunction } from '../utils'
@@ -8,8 +8,7 @@ import { getBlueprints, hasBlueprints } from './DecoratorMetadata'
 
 /**
  * Class representing a ConfigBuilder.
- * Constructing and configuring the dynamic
- * Complex structured configuration options for StoneFactory.
+ * Constructing the StoneBlueprint by introspection and Reflexion.
  *
  * @author Mr. Stone <evensstone@gmail.com>
  */
@@ -47,7 +46,7 @@ export class ConfigBuilder {
    * @param   {Record<string, unknown>[]} modules
    * @returns {ConfigBuilder}
   */
-  modules (...modules: Record<string, unknown>[]): ConfigBuilder {
+  modules (...modules: Array<Record<string, unknown>>): ConfigBuilder {
     this._modules = this._modules.concat(modules.flatMap((module) => Object.values(module)))
     return this
   }
@@ -55,9 +54,9 @@ export class ConfigBuilder {
   /**
    * Build Stone blueprint.
    *
-   * @returns {Config}
+   * @returns {DataContainer}
    */
-  build (): Config {
+  build (): DataContainer {
     const blueprint = this.getBlueprint()
     const context = { blueprint, modules: this._modules }
     const middleware = blueprint.get<Function[]>('stone.builder.middleware', [])
@@ -82,15 +81,15 @@ export class ConfigBuilder {
   /**
    * Get Stone blueprint bag.
    *
-   * @returns {Config}
+   * @returns {DataContainer}
   */
-  private getBlueprint (): Config {
+  private getBlueprint (): DataContainer {
     const stoneBlueprint = this
       .gatherSetupBlueprint()
       .concat(this.gatherDeclarativeBlueprints(), this.gatherImperativeBlueprints())
       .reduce((prev, curr) => merge(prev, curr), {})
-    
-    return new Config(stoneBlueprint)
+
+    return new DataContainer(stoneBlueprint)
   }
 
   /**
@@ -141,9 +140,9 @@ export interface BlueprintContext {
   /**
    * Stone blueprint configuration.
    *
-   * @type {Config}
+   * @type {DataContainer}
    */
-  readonly blueprint: Config
+  readonly blueprint: DataContainer
 
   /**
    * Feature modules.

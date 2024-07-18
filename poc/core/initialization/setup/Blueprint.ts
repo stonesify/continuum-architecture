@@ -1,4 +1,4 @@
-import { MainHandlerMiddleware } from "./middleware/MainHandlerMiddleware";
+import { MainHandlerMiddleware } from './middleware/MainHandlerMiddleware'
 
 /**
  * Initialization Blueprint.
@@ -6,6 +6,11 @@ import { MainHandlerMiddleware } from "./middleware/MainHandlerMiddleware";
 export const InitializationBlueprint = {
   // Stone namespace configuration options.
   stone: {
+    env: null,
+    name: null,
+    debug: false,
+    logger: null,
+
     // Setup layer configuration options.
     builder: {
       middleware: [MainHandlerMiddleware]

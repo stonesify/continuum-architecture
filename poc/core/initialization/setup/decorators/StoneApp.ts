@@ -13,8 +13,8 @@ import { Decorator, blueprintClassDecorator, hasBlueprints } from '../../../setu
  *   // Class definition
  * }
  */
-export function StoneApp <TFunction extends Function>(options?: AppOptions): Decorator<TFunction, void> {
-  const { imports = [], ...stone } = options ?? {};
+export function StoneApp <TFunction extends Function> (options?: AppOptions): Decorator<TFunction, void> {
+  const { imports = [], ...stone } = options ?? {}
   return blueprintClassDecorator([[InitializationBlueprint, { stone }], ...imports])
 }
 
