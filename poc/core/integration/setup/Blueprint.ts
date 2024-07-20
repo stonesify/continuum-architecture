@@ -7,19 +7,24 @@ export const IntegrationBlueprint = {
   // Stone namespace configuration options.
   stone: {
     // Integration layer configuration options.
-    adapters: [
-      [
-        Adapter,
-        {
-          middleware: {
-            incoming: [],
-            outgoing: []
-          },
-          default: true,
-          current: false,
-          errorHandler: null
-        }
-      ]
-    ]
+    adapter: {
+      [Adapter.NAME]: {
+        alias: null,
+        type: Adapter,
+        middleware: {
+          incoming: [],
+          outgoing: []
+        },
+        default: true,
+        current: false,
+        hooks: {
+          onInit: [],
+          beforeHandle: [],
+          onTerminate: []
+        },
+        errorHandler: null,
+        HandlerFactory: null,
+      }
+    }
   }
 }

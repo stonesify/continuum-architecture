@@ -19,7 +19,7 @@ const META_KEY = Symbol.for('Stone.Configuration.Middleware')
  *   // Class definition
  * }
  */
-export const ConfigMiddleware = <TFunction extends Function>(): Decorator<TFunction, void> => classDecorator(META_KEY)
+export const ConfigMiddleware = <TFunction extends Function>(options?: ConfigMiddlewareOptions): Decorator<TFunction, void> => classDecorator(META_KEY, options)
 
 /**
  * Checks if the given class has configuration middleware metadata.
@@ -28,3 +28,7 @@ export const ConfigMiddleware = <TFunction extends Function>(): Decorator<TFunct
  * @returns {boolean} True if the class has configuration middleware metadata, false otherwise.
  */
 export const isConfigMiddleware = (Class: Function): boolean => has(Class, META_KEY)
+
+interface ConfigMiddlewareOptions {
+  priority?: number
+}

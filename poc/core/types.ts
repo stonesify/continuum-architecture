@@ -23,7 +23,7 @@ export interface Logger {
   trace: (message: unknown) => never
 }
 
-export interface ErrorHandler<T extends Error, U> {
-  report: (error: T) => this
-  render: (error: T) => U
+export interface ErrorHandler<TError extends Error, UContext, VResponse> {
+  report: (error: TError, context: UContext) => this
+  render: (error: TError, context: UContext) => VResponse
 }

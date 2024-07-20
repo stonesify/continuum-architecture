@@ -1,29 +1,29 @@
 import { Middleware } from '../types'
 import { isConstructor } from '../utils'
+import { PlatformResponse } from './types'
 import { EventContext } from './EventContext'
 import { IncomingEvent } from '../initialization/events/IncomingEvent'
 import { OutgoingEvent } from '../initialization/events/OutgoingEvent'
-import { PlatformResponse } from './Adapter'
 
-export class EventContextMapper<TMessage, UResponse extends PlatformResponse, VEvent extends IncomingEvent, WResult extends OutgoingEvent, XContext = unknown> {
+export class EventContextMapper<TMessage, UEvent extends IncomingEvent, VResponse extends PlatformResponse, WEvent extends OutgoingEvent, XContext = unknown> {
   constructor (
-    private readonly incomingEventMiddleware: Array<Middleware<EventContext<TMessage, UResponse, VEvent, WResult, XContext>>> = [],
-    private readonly outgoingEventMiddleware: Array<Middleware<EventContext<TMessage, UResponse, VEvent, WResult, XContext>>> = []
+    private readonly incomingEventMiddleware: Array<Middleware<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>>> = [],
+    private readonly outgoingEventMiddleware: Array<Middleware<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>>> = []
   ) {}
 
-  async toIncomingEvent (context: EventContext<TMessage, UResponse, VEvent, WResult, XContext>): Promise<VEvent> {
+  async toIncomingEvent (context: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>): Promise<UEvent> {
     return (await this.map(context, this.incomingEventMiddleware)).incomingEvent
   }
 
-  async toPlatformResponse (context: EventContext<TMessage, UResponse, VEvent, WResult, XContext>): Promise<UResponse | undefined> {
+  async toPlatformResponse (context: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>): Promise<VResponse | undefined> {
     return (await this.map(context, this.outgoingEventMiddleware)).response
   }
 
   private async map (
-    context: EventContext<TMessage, UResponse, VEvent, WResult, XContext>,
-    middleware: Array<Middleware<EventContext<TMessage, UResponse, VEvent, WResult, XContext>>>
-  ): Promise<EventContext<TMessage, UResponse, VEvent, WResult, XContext>> {
-    const runMiddleware = async (index: number = 0): Promise<EventContext<TMessage, UResponse, VEvent, WResult, XContext>> => {
+    context: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>,
+    middleware: Array<Middleware<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>>>
+  ): Promise<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>> {
+    const runMiddleware = async (index: number = 0): Promise<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>> => {
       if (index < middleware.length) {
         const currentMiddleware = middleware[index] as Function
         if (isConstructor(currentMiddleware)) {

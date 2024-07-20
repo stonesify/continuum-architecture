@@ -13,15 +13,15 @@ export class OutgoingEvent<T = unknown> extends Event<Record<string, unknown>> {
    * @type {Symbol}
    * @event OutgoingEvent#OUTGOING_RESPONSE
    */
-  static OUTGOING_RESPONSE: Symbol = Symbol('stonejs@outgoing_response')
+  static OUTGOING_RESPONSE: Symbol = Symbol('stone.OutgoingEvent')
 
-  constructor (content: T, statusCode?: number, statusMessage?: string) {
-    super(OutgoingEvent.OUTGOING_RESPONSE, { content, statusCode, statusMessage })
+  constructor (body: T, statusCode?: number, statusMessage?: string) {
+    super(OutgoingEvent.OUTGOING_RESPONSE, { body, statusCode, statusMessage })
   }
 
   /** @returns {T} */
-  get content (): T {
-    return this.get('content')
+  get body (): T {
+    return this.get('body')
   }
 
   /** @returns {number} */

@@ -1,4 +1,4 @@
-import { MainHandlerMiddleware } from './middleware/MainHandlerMiddleware'
+import { AdapterHandlerFactoryMiddleware, AdapterOnInitSubscribersMiddleware, LoggerMiddleware, MainHandlerMiddleware } from './middleware'
 
 /**
  * Initialization Blueprint.
@@ -13,7 +13,12 @@ export const InitializationBlueprint = {
 
     // Setup layer configuration options.
     builder: {
-      middleware: [MainHandlerMiddleware]
+      middleware: [
+        MainHandlerMiddleware,
+        LoggerMiddleware,
+        AdapterHandlerFactoryMiddleware,
+        AdapterOnInitSubscribersMiddleware
+      ]
     },
 
     // Initialization layer configuration options.
@@ -21,8 +26,8 @@ export const InitializationBlueprint = {
       handler: null,
       middleware: {
         skip: false,
-        event: [],
-        response: [],
+        incoming: [],
+        outgoing: [],
         terminate: [],
         defaultPriority: 10
       },

@@ -6,7 +6,6 @@ export const SetupBlueprint = {
   stone: {
     // Setup layer configuration options.
     builder: {
-      errorHandler: null,
       middleware: [],
       defaultMiddlewarePriority: 10
     }

@@ -4,7 +4,7 @@ export class Event<T> extends DataContainer<T> {
   constructor (
     public readonly type: string | Symbol,
     protected readonly data: T,
-    protected readonly timeStamp: Date = new Date()
+    protected readonly timestamp: Date = new Date()
   ) {
     super(data)
   }
