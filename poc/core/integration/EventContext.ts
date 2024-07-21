@@ -1,7 +1,7 @@
 import { PlatformResponse } from './types'
 import { DataContainer } from '../DataContainer'
-import { IncomingEvent } from '../initialization/events/IncomingEvent'
-import { OutgoingEvent } from '../initialization/events/OutgoingEvent'
+import { IncomingEvent } from '../events/IncomingEvent'
+import { OutgoingEvent } from '../events/OutgoingEvent'
 
 export class EventContext<TMessage, UEvent extends IncomingEvent, VResponse extends PlatformResponse, WEvent extends OutgoingEvent, XContext = unknown> {
   private _response?: VResponse
@@ -14,11 +14,11 @@ export class EventContext<TMessage, UEvent extends IncomingEvent, VResponse exte
     public readonly context?: XContext
   ) {}
 
-  get response () {
+  get response (): VResponse | undefined {
     return this._response
   }
 
-  get outgoingEvent () {
+  get outgoingEvent (): WEvent | undefined {
     return this._outgoingEvent
   }
 

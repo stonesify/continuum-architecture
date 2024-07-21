@@ -1,5 +1,5 @@
 import { IntegrationBlueprint } from '../Blueprint'
-import { Decorator, blueprintClassDecorator } from '../../../setup/DecoratorMetadata'
+import { Decorator, blueprintClassDecorator } from '../../../DecoratorMetadata'
 
 /**
  * A class decorator that sets the Configuration metadata.
@@ -13,8 +13,8 @@ import { Decorator, blueprintClassDecorator } from '../../../setup/DecoratorMeta
  *   // Class definition
  * }
  */
-export function Adapter<TFunction extends Function>(options: AdapterOptions = {}): Decorator<TFunction, void> {
-  return blueprintClassDecorator([[IntegrationBlueprint, { stone: { adapter: { default : options } } }]])
+export function DefaultAdapter<TFunction extends Function> (options: AdapterOptions = {}): Decorator<TFunction, void> {
+  return blueprintClassDecorator([[IntegrationBlueprint, { stone: { adapter: { default: options } } }]])
 }
 
 /**

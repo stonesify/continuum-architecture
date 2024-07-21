@@ -1,4 +1,4 @@
-import { Decorator, classDecorator, get, has } from "../../../setup/DecoratorMetadata"
+import { Decorator, classDecorator, get, has } from '../../../DecoratorMetadata'
 
 const META_KEY = Symbol.for('Stone.Integration.ErrorHandler')
 

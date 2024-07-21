@@ -1,4 +1,4 @@
-import { DataContainer } from '../../DataContainer'
+import { DataContainer } from '../DataContainer'
 
 export class Event<T> extends DataContainer<T> {
   constructor (

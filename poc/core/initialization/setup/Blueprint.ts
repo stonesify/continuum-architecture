@@ -1,4 +1,4 @@
-import { AdapterHandlerFactoryMiddleware, AdapterOnInitSubscribersMiddleware, LoggerMiddleware, MainHandlerMiddleware } from './middleware'
+import { AdapterHandlerFactoryMiddleware, AdapterOnInitSubscribersMiddleware, KernelErrorHandlerMiddleware, KernelMiddlewareMiddleware, LoggerMiddleware, MainHandlerMiddleware } from './middleware'
 
 /**
  * Initialization Blueprint.
@@ -16,6 +16,8 @@ export const InitializationBlueprint = {
       middleware: [
         MainHandlerMiddleware,
         LoggerMiddleware,
+        KernelMiddlewareMiddleware,
+        KernelErrorHandlerMiddleware,
         AdapterHandlerFactoryMiddleware,
         AdapterOnInitSubscribersMiddleware
       ]

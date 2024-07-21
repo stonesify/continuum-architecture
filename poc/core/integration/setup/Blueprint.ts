@@ -1,4 +1,5 @@
 import { Adapter } from '../Adapter'
+import { AdapterErrorHandlerMiddleware, AdapterMiddlewareMiddleware } from './middleware'
 
 /**
  * Integration Blueprint.
@@ -6,6 +7,14 @@ import { Adapter } from '../Adapter'
 export const IntegrationBlueprint = {
   // Stone namespace configuration options.
   stone: {
+    // Setup layer configuration options.
+    builder: {
+      middleware: [
+        AdapterMiddlewareMiddleware,
+        AdapterErrorHandlerMiddleware
+      ]
+    },
+
     // Integration layer configuration options.
     adapter: {
       [Adapter.NAME]: {
@@ -23,7 +32,7 @@ export const IntegrationBlueprint = {
           onTerminate: []
         },
         errorHandler: null,
-        HandlerFactory: null,
+        handlerFactory: null
       }
     }
   }

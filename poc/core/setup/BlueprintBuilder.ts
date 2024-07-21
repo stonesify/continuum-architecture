@@ -1,54 +1,41 @@
-import { DataContainer } from '../DataContainer'
 import { merge } from 'ts-deepmerge'
+import { BlueprintContext } from './types'
 import { SetupBlueprint } from './Blueprint'
-import { isConstructor, isFunction } from '../utils'
+import { isClass, isFunction } from '../utils'
+import { DataContainer } from '../DataContainer'
 import { isConfiguration } from './decorators/Configuration'
 import { isConfigMiddleware } from './decorators/ConfigMiddleware'
-import { getBlueprints, hasBlueprints } from './DecoratorMetadata'
+import { getBlueprints, hasBlueprints } from '../DecoratorMetadata'
 
 /**
- * Class representing a ConfigBuilder.
+ * Class representing a BlueprintBuilder.
  * Constructing the StoneBlueprint by introspection and Reflexion.
  *
  * @author Mr. Stone <evensstone@gmail.com>
  */
-export class ConfigBuilder {
+export class BlueprintBuilder {
   /**
    * Feature modules.
    *
    * @type {unknown[]}
   */
-  private _modules: unknown[] = []
+  private readonly modules: unknown[]
 
   /**
    * Modules classes.
    *
    * @type {Function[]}
   */
-  private _classes: Function[]
+  private readonly classes: Function[]
 
   /**
-   * Gather classes from modules.
+   * BlueprintBuilder constructor.
    *
-   * @type {Function[]}
+   * @param {Record<string, unknown>[]} modules
   */
-  private get classes (): Function[] {
-    this._classes ??= this._modules
-      .filter((module) => isFunction(module))
-      .map((module) => module as Function)
-
-    return this._classes
-  }
-
-  /**
-   * Add feature modules.
-   *
-   * @param   {Record<string, unknown>[]} modules
-   * @returns {ConfigBuilder}
-  */
-  modules (...modules: Array<Record<string, unknown>>): ConfigBuilder {
-    this._modules = this._modules.concat(modules.flatMap((module) => Object.values(module)))
-    return this
+  constructor (...modules: Array<Record<string, unknown>>) {
+    this.modules = modules.flatMap((module) => Object.values(module))
+    this.classes = this.modules.filter((module) => isFunction(module)).map((module) => module as Function)
   }
 
   /**
@@ -58,13 +45,13 @@ export class ConfigBuilder {
    */
   build (): DataContainer {
     const blueprint = this.getBlueprint()
-    const context = { blueprint, modules: this._modules }
+    const context = { blueprint, modules: this.modules }
     const middleware = blueprint.get<Function[]>('stone.builder.middleware', [])
 
     const runMiddleware = (index: number = 0): BlueprintContext => {
       if (index < middleware.length) {
         const currentMiddleware = middleware[index]
-        if (isConstructor(currentMiddleware)) {
+        if (isClass(currentMiddleware)) {
           const middlewareInstance = Reflect.construct(currentMiddleware, [])
           return middlewareInstance.handle(context, () => runMiddleware(index + 1))
         } else {
@@ -128,26 +115,4 @@ export class ConfigBuilder {
       .filter((Class: Function) => isConfiguration(Class))
       .map((Class: Function) => Reflect.construct(Class, []))
   }
-}
-
-/**
- * Middleware blueprint context.
- *
- * This interface represents the context passed through middleware functions,
- * containing the blueprint configuration and feature modules.
- */
-export interface BlueprintContext {
-  /**
-   * Stone blueprint configuration.
-   *
-   * @type {DataContainer}
-   */
-  readonly blueprint: DataContainer
-
-  /**
-   * Feature modules.
-   *
-   * @type {unknown[]}
-   */
-  readonly modules: unknown[]
 }

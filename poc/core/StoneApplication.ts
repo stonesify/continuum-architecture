@@ -1,22 +1,22 @@
-import { DataContainer } from "./DataContainer";
-import { ConfigBuilder } from "./setup/ConfigBuilder";
-import { AdapterInterface, AdapterOptions } from "./integration/types";
+import { DataContainer } from './DataContainer'
+import { BlueprintBuilder } from './setup/BlueprintBuilder'
+import { AdapterInterface, AdapterOptions } from './integration/types'
 
 /**
- * Class representing StoneFactory.
+ * Class representing StoneApplication.
  *
  * @version 0.0.1
  * @author Mr. Stone <evensstone@gmail.com>
  */
-export class StoneFactory {
-  private readonly configBuilder: ConfigBuilder
+export class StoneApplication {
+  private readonly blueprintBuilder: BlueprintBuilder
 
-  static create (...modules: Array<Record<string, unknown>>) {
+  static create (...modules: Array<Record<string, unknown>>): StoneApplication {
     return new this(...modules)
   }
 
-  constructor(...modules: Array<Record<string, unknown>>) {
-    this.configBuilder = new ConfigBuilder().modules(...modules)
+  constructor (...modules: Array<Record<string, unknown>>) {
+    this.blueprintBuilder = new BlueprintBuilder(...modules)
   }
 
   initialize (blueprint: DataContainer): AdapterInterface {
@@ -27,8 +27,8 @@ export class StoneFactory {
     return this.initialize(this.makeBlueprint()).run()
   }
 
-  private makeBlueprint () {
-    return this.configBuilder.build()
+  private makeBlueprint (): DataContainer {
+    return this.blueprintBuilder.build()
   }
 
   private gatherCurrentAdapter (blueprint: DataContainer): Function {
@@ -36,8 +36,8 @@ export class StoneFactory {
     const current = adapters.find((adapter) => adapter.preferred) ??
       adapters.find((adapter) => adapter.current) ??
       adapters.find((adapter) => adapter.default)
-    
-    if (current) {
+
+    if (current != null) {
       return current.type
     } else {
       throw new TypeError('No adapters provided. Stone.js needs at least one adapter to run.')

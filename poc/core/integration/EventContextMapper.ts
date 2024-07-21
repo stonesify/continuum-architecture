@@ -1,9 +1,9 @@
+import { isClass } from '../utils'
 import { Middleware } from '../types'
-import { isConstructor } from '../utils'
 import { PlatformResponse } from './types'
 import { EventContext } from './EventContext'
-import { IncomingEvent } from '../initialization/events/IncomingEvent'
-import { OutgoingEvent } from '../initialization/events/OutgoingEvent'
+import { IncomingEvent } from '../events/IncomingEvent'
+import { OutgoingEvent } from '../events/OutgoingEvent'
 
 export class EventContextMapper<TMessage, UEvent extends IncomingEvent, VResponse extends PlatformResponse, WEvent extends OutgoingEvent, XContext = unknown> {
   constructor (
@@ -26,7 +26,7 @@ export class EventContextMapper<TMessage, UEvent extends IncomingEvent, VRespons
     const runMiddleware = async (index: number = 0): Promise<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>> => {
       if (index < middleware.length) {
         const currentMiddleware = middleware[index] as Function
-        if (isConstructor(currentMiddleware)) {
+        if (isClass(currentMiddleware)) {
           const middlewareInstance = Reflect.construct(currentMiddleware, [])
           return await middlewareInstance.handle(context, async () => await runMiddleware(index + 1))
         } else {

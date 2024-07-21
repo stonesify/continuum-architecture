@@ -21,3 +21,11 @@ export const isConstructor = (value: any): boolean => {
 
   return true
 }
+
+/**
+ * Is class.
+ *
+ * @param   {any} value
+ * @returns {boolean}
+ */
+export const isClass = (value: any): boolean => isFunction(value) && /^\s*class/.test(value.toString())

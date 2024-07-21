@@ -13,14 +13,14 @@ export type NextMiddleware<T> = (context: T) => T
 export type Middleware<T> = FunctionalMiddleware<T> | ClassBasedMiddleware<T> | AbstractClassBasedMiddleware<T>
 
 export interface Logger {
-  init: () => Promise<never> | never
-  log: (level: string, message: unknown) => never
-  fatal: (message: unknown) => never
-  error: (message: unknown) => never
-  warn: (message: unknown) => never
-  info: (message: unknown) => never
-  debug: (message: unknown) => never
-  trace: (message: unknown) => never
+  init: () => void
+  log: (level: string, message: unknown) => void
+  fatal: (message: unknown) => void
+  error: (message: unknown) => void
+  warn: (message: unknown) => void
+  info: (message: unknown) => void
+  debug: (message: unknown) => void
+  trace: (message: unknown) => void
 }
 
 export interface ErrorHandler<TError extends Error, UContext, VResponse> {

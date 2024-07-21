@@ -1,4 +1,4 @@
-import { Decorator, classDecorator, get, has } from "../../../core/setup/DecoratorMetadata"
+import { Decorator, classDecorator, get, has } from "../../../core/DecoratorMetadata"
 
 
 /**

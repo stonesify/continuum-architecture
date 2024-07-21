@@ -2,15 +2,15 @@ import { isFunction } from '../utils'
 import { EventContext } from './EventContext'
 import { ErrorHandler, Logger } from '../types'
 import { DataContainer } from '../DataContainer'
+import { IncomingEvent } from '../events/IncomingEvent'
+import { OutgoingEvent } from '../events/OutgoingEvent'
 import { EventContextMapper } from './EventContextMapper'
-import { IncomingEvent } from '../initialization/events/IncomingEvent'
-import { OutgoingEvent } from '../initialization/events/OutgoingEvent'
 import { AdapterHooks, AdapterInterface, EventHandlerable, HandlerFactory, PlatformResponse } from './types'
 
 export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends PlatformResponse, WEvent extends OutgoingEvent, XContext = unknown> implements AdapterInterface {
   static readonly NAME = 'default'
 
-  protected readonly logger: Logger | undefined
+  protected readonly logger?: Logger
   protected readonly hooks: Record<AdapterHooks, Function[]>
   protected readonly handlerFactory: HandlerFactory<UEvent, WEvent>
   protected readonly mapper: EventContextMapper<TMessage, UEvent, VResponse, WEvent, XContext>
@@ -24,7 +24,7 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     this.handlerFactory = this.makeHandlerFactory()
   }
 
-  get name () {
+  get name (): string {
     return Adapter.NAME
   }
 
@@ -81,13 +81,13 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     }
 
     if ('beforeHandle' in handler) {
-      await handler.beforeHandle()
+      await handler.beforeHandle?.()
     }
   }
 
   protected async onTerminate (
     handler: EventHandlerable<UEvent, WEvent>,
-    eventContext?: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>
+    _eventContext?: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>
   ): Promise<void> {
     if (Array.isArray(this.hooks.onTerminate)) {
       for (const listener of this.hooks.onTerminate) {
@@ -96,14 +96,14 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     }
 
     if ('onTerminate' in handler) {
-      await handler.onTerminate()
+      await handler.onTerminate?.()
     }
   }
 
   protected handleError (error: Error, eventContext: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>): unknown {
-    if (this.errorHandler) {
+    if (this.errorHandler != null) {
       return this.errorHandler.report(error, eventContext).render(error, eventContext)
-    } else if (this.logger) {
+    } else if (this.logger != null) {
       this.logger.error(error)
     } else {
       console.error(error)
@@ -115,8 +115,8 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     return this
   }
 
-  private makeHandlerFactory (): (blueprint: DataContainer) => EventHandlerable<UEvent, WEvent> {
-    return this.blueprint.get(`stone.adapter.${this.name}.HandlerFactory`)
+  private makeHandlerFactory (): HandlerFactory<UEvent, WEvent> {
+    return this.blueprint.get(`stone.adapter.${this.name}.handlerFactory`)
   }
 
   private makeHooks (): Record<AdapterHooks, Function[]> {
@@ -125,7 +125,7 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
       {
         onInit: [],
         onTerminate: [],
-        beforeHandle: [],
+        beforeHandle: []
       }
     )
   }

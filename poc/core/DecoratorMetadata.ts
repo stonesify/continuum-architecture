@@ -1,4 +1,4 @@
-import { isConstructor } from '../utils'
+import { isConstructor } from './utils'
 
 /**
  * A unique symbol key for storing metadata.

@@ -1,5 +1,5 @@
 import { InitializationBlueprint } from '../Blueprint'
-import { Decorator, blueprintClassDecorator, hasBlueprints } from '../../../setup/DecoratorMetadata'
+import { Decorator, blueprintClassDecorator } from '../../../DecoratorMetadata'
 
 /**
  * A class decorator that sets the Configuration metadata.
@@ -17,14 +17,6 @@ export function StoneApp <TFunction extends Function> (options?: AppOptions): De
   const { imports = [], ...stone } = options ?? {}
   return blueprintClassDecorator([[InitializationBlueprint, { stone }], ...imports])
 }
-
-/**
- * Checks if the given class is the main handler.
- *
- * @param   {Function} Class - The class to check for configuration metadata.
- * @returns {boolean} True if the class has configuration metadata, false otherwise.
- */
-export const isStoneApp = (Class: Function): boolean => hasBlueprints(Class)
 
 /**
  * Interface representing the options for a Stone application.

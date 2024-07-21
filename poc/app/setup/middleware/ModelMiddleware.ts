@@ -1,6 +1,6 @@
 import { NextMiddleware } from "../../../core/types";
+import { BlueprintContext } from "../../../core/setup/types";
 import { getModelOptions, isModel } from "../decorators/Model";
-import { BlueprintContext } from "../../../core/setup/ConfigBuilder";
 import { ConfigMiddleware } from "../../../core/setup/decorators/ConfigMiddleware";
 
 @ConfigMiddleware()

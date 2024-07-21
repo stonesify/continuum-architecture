@@ -2,30 +2,32 @@ import { Kernel } from '../Kernel'
 import { ServicePovider } from '../types'
 import { NextMiddleware } from '../../types'
 import { isLogger } from './decorators/Logger'
-import { isStoneApp } from './decorators/StoneApp'
 import { DataContainer } from '../../DataContainer'
+import { BlueprintContext } from '../../setup/types'
+import { hasBlueprints } from '../../DecoratorMetadata'
 import { AdapterOptions } from '../../integration/types'
-import { BlueprintContext } from '../../setup/ConfigBuilder'
+import { isKernelErrorHandler } from './decorators/KernelErrorHandler'
+import { getKernelMiddlewareOptions, isKernelMiddleware } from './decorators/KernelMiddleware'
 
-export function MainHandlerMiddleware<T extends BlueprintContext>(context: T, next: NextMiddleware<T>): T {
-  const handler = context.modules.find((module) => typeof module === 'function' && isStoneApp(module))
-  
+export function MainHandlerMiddleware<T extends BlueprintContext> (context: T, next: NextMiddleware<T>): T {
+  const handler = context.modules.find((module) => typeof module === 'function' && hasBlueprints(module))
+
   context.blueprint
     .set('stone.kernel.handler', handler)
-    .add('stone.kernel.providers', handler)
+    .add('stone.kernel.providers', [handler])
 
   return next(context)
 }
 
-export function AdapterHandlerFactoryMiddleware<T extends BlueprintContext>(context: T, next: NextMiddleware<T>): T {
+export function AdapterHandlerFactoryMiddleware<T extends BlueprintContext> (context: T, next: NextMiddleware<T>): T {
   Object
     .entries(context.blueprint.get<Record<string, AdapterOptions>>('stone.adapter', {}))
-    .forEach(([name]) => context.blueprint.set(`stone.adapter.${name}.handlerFactory`, (blueprint: DataContainer) => new Kernel(blueprint)))
+    .forEach(([name]) => context.blueprint.set(`stone.adapter.${name}.handlerFactory`, (blueprint: DataContainer<Record<string, unknown>>) => new Kernel(blueprint)))
 
   return next(context)
 }
 
-export function AdapterOnInitSubscribersMiddleware<T extends BlueprintContext>(context: T, next: NextMiddleware<T>): T {
+export function AdapterOnInitSubscribersMiddleware<T extends BlueprintContext> (context: T, next: NextMiddleware<T>): T {
   Object
     .entries(context.blueprint.get<Record<string, AdapterOptions>>('stone.adapter', {}))
     .forEach(([name]) => {
@@ -38,7 +40,7 @@ export function AdapterOnInitSubscribersMiddleware<T extends BlueprintContext>(c
   return next(context)
 }
 
-export function LoggerMiddleware<T extends BlueprintContext>(context: T, next: NextMiddleware<T>): T {
+export function LoggerMiddleware<T extends BlueprintContext> (context: T, next: NextMiddleware<T>): T {
   context.blueprint.set(
     'stone.logger',
     context.modules.find((module) => typeof module === 'function' && isLogger(module))
@@ -47,40 +49,24 @@ export function LoggerMiddleware<T extends BlueprintContext>(context: T, next: N
   return next(context)
 }
 
-// export function KernelMiddlewareMiddleware<T extends BlueprintContext>(context: T, next: NextMiddleware<T>): T {
-//   const adapters = context.blueprint.get<Record<string, AdapterOptions>>('stone.adapter')
-//   const middleware = context.modules.filter((module) => typeof module === 'function' && isAdapterMiddleware(module)) as Function[]
+export function KernelMiddlewareMiddleware<T extends BlueprintContext> (context: T, next: NextMiddleware<T>): T {
+  const middleware = context.modules.filter((module) => typeof module === 'function' && isKernelMiddleware(module)) as Function[]
 
-//   Object
-//     .entries(adapters)
-//     .forEach(([name, options]) => {
-//       const incoming = middleware.filter((module) => {
-//         const params = getAdapterMiddlewareOptions(module)
-//         return [name, options.alias, undefined].includes(params.adapter) && !params.outgoing
-//       })
-//       const outgoing = middleware.filter((module) => {
-//         const params = getAdapterMiddlewareOptions(module)
-//         return [name, options.alias, undefined].includes(params.adapter) && params.outgoing
-//       })
-//       const terminate = middleware.filter((module) => {
-//         const params = getAdapterMiddlewareOptions(module)
-//         return [name, options.alias, undefined].includes(params.adapter) && params.terminate
-//       })
-//       context.blueprint.add(`stone.kernel.middleware.incoming`, incoming)
-//       context.blueprint.add(`stone.kernel.middleware.outgoing`, outgoing)
-//       context.blueprint.add(`stone.kernel.middleware.terminate`, terminate)
-//     })
+  context.blueprint.add('stone.kernel.middleware.outgoing', middleware.filter((module) => getKernelMiddlewareOptions(module).outgoing))
+  context.blueprint.add('stone.kernel.middleware.terminate', middleware.filter((module) => getKernelMiddlewareOptions(module).terminate))
+  context.blueprint.add('stone.kernel.middleware.incoming', middleware.filter((module) => {
+    const options = getKernelMiddlewareOptions(module)
+    return !options.outgoing && !options.terminate
+  }))
 
-//   return next(context)
-// }
+  return next(context)
+}
 
-// export function KernelErrorHandlerMiddleware<T extends BlueprintContext>(context: T, next: NextMiddleware<T>): T {
-//   const errorHandlers = context.modules.filter((module) => typeof module === 'function' && isAdapterErrorHandler(module)) as Function[]
+export function KernelErrorHandlerMiddleware<T extends BlueprintContext> (context: T, next: NextMiddleware<T>): T {
+  context.blueprint.set(
+    'stone.kernel.errorHandler',
+    context.modules.find((module) => typeof module === 'function' && isKernelErrorHandler(module))
+  )
 
-//   context.blueprint.set(
-//     'stone.kernel.errorHandler',
-//     errorHandlers.find((module) => [name, options.alias, undefined].includes(getAdapterErrorHandlerOptions(module).adapter))
-//   )
-
-//   return next(context)
-// }
+  return next(context)
+}

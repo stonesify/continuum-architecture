@@ -1,4 +1,4 @@
-import { Decorator, classDecorator, has } from '../DecoratorMetadata'
+import { Decorator, classDecorator, has } from '../../DecoratorMetadata'
 
 /**
  * A unique symbol key for the Configuration metadata.
