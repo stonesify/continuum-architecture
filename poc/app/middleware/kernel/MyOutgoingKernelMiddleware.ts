@@ -1,4 +1,4 @@
-import { NextMiddleware } from "../../../core/types";
+import { NextMiddleware } from "../../../core/Pipeline";
 import { IncomingEvent } from "../../../core/events/IncomingEvent";
 import { OutgoingEvent } from "../../../core/events/OutgoingEvent";
 import { EventContext } from "../../../core/integration/EventContext";

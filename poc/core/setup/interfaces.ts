@@ -1,4 +1,4 @@
-import { DataContainer } from '../DataContainer'
+import { StoneBlueprint } from '../StoneBlueprint'
 
 /**
  * Middleware blueprint context.
@@ -10,9 +10,9 @@ export interface BlueprintContext {
   /**
    * Stone blueprint configuration.
    *
-   * @type {DataContainer}
+   * @type {StoneBlueprint}
    */
-  readonly blueprint: DataContainer
+  readonly blueprint: StoneBlueprint
 
   /**
    * Feature modules.

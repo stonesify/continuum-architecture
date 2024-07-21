@@ -1,6 +1,6 @@
-import { DataContainer } from './DataContainer'
+import { StoneBlueprint } from './StoneBlueprint'
 import { BlueprintBuilder } from './setup/BlueprintBuilder'
-import { AdapterInterface, AdapterOptions } from './integration/types'
+import { Adapter, AdapterOptions } from './integration/interfaces'
 
 /**
  * Class representing StoneApplication.
@@ -19,19 +19,19 @@ export class StoneApplication {
     this.blueprintBuilder = new BlueprintBuilder(...modules)
   }
 
-  initialize (blueprint: DataContainer): AdapterInterface {
+  initialize (blueprint: StoneBlueprint): Adapter {
     return Reflect.construct(this.gatherCurrentAdapter(blueprint), [blueprint])
   }
 
-  run (): unknown {
+  run () {
     return this.initialize(this.makeBlueprint()).run()
   }
 
-  private makeBlueprint (): DataContainer {
+  private makeBlueprint (): StoneBlueprint {
     return this.blueprintBuilder.build()
   }
 
-  private gatherCurrentAdapter (blueprint: DataContainer): Function {
+  private gatherCurrentAdapter (blueprint: StoneBlueprint): Function {
     const adapters = Object.values(blueprint.get<Record<string, AdapterOptions>>('stone.adapter', {}))
     const current = adapters.find((adapter) => adapter.preferred) ??
       adapters.find((adapter) => adapter.current) ??

@@ -5,13 +5,13 @@ import { get, set, has, mergeWith } from 'lodash-es'
  *
  * @author Mr. Stone <evensstone@gmail.com>
  */
-export class DataContainer<U = unknown> {
+export class DataContainer<UItems> {
   /**
    * Create a DataContainer.
    *
-   * @param {U} [items={}]
+   * @param {UItems} [items={}]
    */
-  constructor (protected readonly items: U) {
+  constructor (protected readonly items: UItems) {
     return new Proxy(this, {
       get (target, prop, receiver) {
         return Reflect.has(target, prop)
@@ -94,7 +94,7 @@ export class DataContainer<U = unknown> {
    *
    * @returns {Record<string, unknown>}
    */
-  all (): U {
+  all (): UItems {
     return this.items
   }
 }

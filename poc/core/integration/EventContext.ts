@@ -1,5 +1,5 @@
-import { PlatformResponse } from './types'
-import { DataContainer } from '../DataContainer'
+import { PlatformResponse } from './interfaces'
+import { StoneBlueprint } from '../StoneBlueprint'
 import { IncomingEvent } from '../events/IncomingEvent'
 import { OutgoingEvent } from '../events/OutgoingEvent'
 
@@ -8,7 +8,7 @@ export class EventContext<TMessage, UEvent extends IncomingEvent, VResponse exte
   private _outgoingEvent?: WEvent
 
   constructor (
-    public readonly blueprint: DataContainer,
+    public readonly blueprint: StoneBlueprint,
     public readonly message: TMessage,
     public readonly incomingEvent: UEvent,
     public readonly context?: XContext

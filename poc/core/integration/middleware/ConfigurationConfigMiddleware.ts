@@ -1,4 +1,4 @@
-import { BlueprintContext } from '../../setup/types'
+import { BlueprintContext } from '../../setup/interfaces'
 
 /**
  * Middleware for handling configuration in the blueprint context.

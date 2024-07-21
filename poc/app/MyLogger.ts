@@ -1,4 +1,4 @@
-import { Logger as LoggerInterface } from "../core/types";
+import { Logger as LoggerInterface } from "../core/interfaces";
 import { Logger } from "../core/initialization/setup/decorators/Logger";
 
 @Logger()

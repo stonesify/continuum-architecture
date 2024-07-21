@@ -1,22 +1,28 @@
 import { isFunction } from '../utils'
 import { EventContext } from './EventContext'
-import { ErrorHandler, Logger } from '../types'
-import { DataContainer } from '../DataContainer'
+import { ErrorHandler, Logger } from '../interfaces'
+import { StoneBlueprint } from '../StoneBlueprint'
 import { IncomingEvent } from '../events/IncomingEvent'
 import { OutgoingEvent } from '../events/OutgoingEvent'
 import { EventContextMapper } from './EventContextMapper'
-import { AdapterHooks, AdapterInterface, EventHandlerable, HandlerFactory, PlatformResponse } from './types'
+import { AdapterHooks, Adapter, EventHandler, HandlerFactory, PlatformResponse } from './interfaces'
 
-export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends PlatformResponse, WEvent extends OutgoingEvent, XContext = unknown> implements AdapterInterface {
+export class BaseAdapter<
+  TMessage,
+  UIncomingEvent extends IncomingEvent,
+  VResponse extends PlatformResponse,
+  WOutgoingEvent extends OutgoingEvent,
+  XContext = unknown
+> implements Adapter {
   static readonly NAME = 'default'
 
   protected readonly logger?: Logger
   protected readonly hooks: Record<AdapterHooks, Function[]>
-  protected readonly handlerFactory: HandlerFactory<UEvent, WEvent>
-  protected readonly mapper: EventContextMapper<TMessage, UEvent, VResponse, WEvent, XContext>
-  protected readonly errorHandler?: ErrorHandler<Error, EventContext<TMessage, UEvent, VResponse, WEvent, XContext>, unknown>
+  protected readonly handlerFactory: HandlerFactory<UIncomingEvent, WOutgoingEvent>
+  protected readonly mapper: EventContextMapper<TMessage, UIncomingEvent, VResponse, WOutgoingEvent, XContext>
+  protected readonly errorHandler?: ErrorHandler<Error, EventContext<TMessage, UIncomingEvent, VResponse, WOutgoingEvent, XContext>, unknown>
 
-  constructor (protected readonly blueprint: DataContainer<Record<string, unknown>>) {
+  constructor (protected readonly blueprint: StoneBlueprint) {
     this.hooks = this.makeHooks()
     this.logger = this.makeLogger()
     this.mapper = this.makeMapper()
@@ -25,7 +31,7 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
   }
 
   get name (): string {
-    return Adapter.NAME
+    return BaseAdapter.NAME
   }
 
   hook (event: AdapterHooks, listener: Function): this {
@@ -37,12 +43,12 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     await this.onInit()
     const handler = this.handlerFactory(this.blueprint)
     await this.beforeHandle(handler)
-    return await this.onMessageReceived(handler, new EventContext(this.blueprint, {} as TMessage, {} as UEvent))
+    return await this.onMessageReceived(handler, new EventContext(this.blueprint, {} as TMessage, {} as UIncomingEvent))
   }
 
   protected async onMessageReceived (
-    handler: EventHandlerable<UEvent, WEvent>,
-    eventContext: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>
+    handler: EventHandler<UIncomingEvent, WOutgoingEvent>,
+    eventContext: EventContext<TMessage, UIncomingEvent, VResponse, WOutgoingEvent, XContext>
   ): Promise<unknown> {
     try {
       const incomingEvent = await this.mapper.toIncomingEvent(eventContext)
@@ -73,7 +79,7 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     }
   }
 
-  protected async beforeHandle (handler: EventHandlerable<UEvent, WEvent>): Promise<void> {
+  protected async beforeHandle (handler: EventHandler<UIncomingEvent, WOutgoingEvent>): Promise<void> {
     if (Array.isArray(this.hooks.beforeHandle)) {
       for (const listener of this.hooks.beforeHandle) {
         await listener()
@@ -81,13 +87,13 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     }
 
     if ('beforeHandle' in handler) {
-      await handler.beforeHandle?.()
+      await handler.beforeHandle()
     }
   }
 
   protected async onTerminate (
-    handler: EventHandlerable<UEvent, WEvent>,
-    _eventContext?: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>
+    handler: EventHandler<UIncomingEvent, WOutgoingEvent>,
+    _eventContext?: EventContext<TMessage, UIncomingEvent, VResponse, WOutgoingEvent, XContext>
   ): Promise<void> {
     if (Array.isArray(this.hooks.onTerminate)) {
       for (const listener of this.hooks.onTerminate) {
@@ -96,11 +102,11 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     }
 
     if ('onTerminate' in handler) {
-      await handler.onTerminate?.()
+      await handler.onTerminate()
     }
   }
 
-  protected handleError (error: Error, eventContext: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>): unknown {
+  protected handleError (error: Error, eventContext: EventContext<TMessage, UIncomingEvent, VResponse, WOutgoingEvent, XContext>): unknown {
     if (this.errorHandler != null) {
       return this.errorHandler.report(error, eventContext).render(error, eventContext)
     } else if (this.logger != null) {
@@ -115,7 +121,7 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     return this
   }
 
-  private makeHandlerFactory (): HandlerFactory<UEvent, WEvent> {
+  private makeHandlerFactory (): HandlerFactory<UIncomingEvent, WOutgoingEvent> {
     return this.blueprint.get(`stone.adapter.${this.name}.handlerFactory`)
   }
 
@@ -138,14 +144,14 @@ export class Adapter<TMessage, UEvent extends IncomingEvent, VResponse extends P
     }
   }
 
-  private makeMapper (): EventContextMapper<TMessage, UEvent, VResponse, WEvent, XContext> {
+  private makeMapper (): EventContextMapper<TMessage, UIncomingEvent, VResponse, WOutgoingEvent, XContext> {
     return new EventContextMapper(
       this.blueprint.get(`stone.adapter.${this.name}.middleware.incoming`, []),
       this.blueprint.get(`stone.adapter.${this.name}.middleware.outgoing`, [])
     )
   }
 
-  private makeErrorHandler (): ErrorHandler<Error, EventContext<TMessage, UEvent, VResponse, WEvent, XContext>, unknown> | undefined {
+  private makeErrorHandler (): ErrorHandler<Error, EventContext<TMessage, UIncomingEvent, VResponse, WOutgoingEvent, XContext>, unknown> | undefined {
     if (this.blueprint.has(`stone.adapter.${this.name}.errorHandler`)) {
       return Reflect.construct(this.blueprint.get(`stone.adapter.${this.name}.errorHandler`), [this.blueprint])
     } else {

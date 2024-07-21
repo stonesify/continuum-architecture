@@ -1,11 +1,11 @@
 import { Kernel } from '../Kernel'
-import { ServicePovider } from '../types'
-import { NextMiddleware } from '../../types'
+import { ServicePovider } from '../interfaces'
 import { isLogger } from './decorators/Logger'
-import { DataContainer } from '../../DataContainer'
-import { BlueprintContext } from '../../setup/types'
+import { NextMiddleware } from '../../Pipeline'
+import { BlueprintContext } from '../../setup/interfaces'
+import { StoneBlueprint } from '../../StoneBlueprint'
 import { hasBlueprints } from '../../DecoratorMetadata'
-import { AdapterOptions } from '../../integration/types'
+import { AdapterOptions } from '../../integration/interfaces'
 import { isKernelErrorHandler } from './decorators/KernelErrorHandler'
 import { getKernelMiddlewareOptions, isKernelMiddleware } from './decorators/KernelMiddleware'
 
@@ -22,7 +22,7 @@ export function MainHandlerMiddleware<T extends BlueprintContext> (context: T, n
 export function AdapterHandlerFactoryMiddleware<T extends BlueprintContext> (context: T, next: NextMiddleware<T>): T {
   Object
     .entries(context.blueprint.get<Record<string, AdapterOptions>>('stone.adapter', {}))
-    .forEach(([name]) => context.blueprint.set(`stone.adapter.${name}.handlerFactory`, (blueprint: DataContainer<Record<string, unknown>>) => new Kernel(blueprint)))
+    .forEach(([name]) => context.blueprint.set(`stone.adapter.${name}.handlerFactory`, (blueprint: StoneBlueprint) => new Kernel(blueprint)))
 
   return next(context)
 }

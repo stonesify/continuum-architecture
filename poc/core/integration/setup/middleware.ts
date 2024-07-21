@@ -1,6 +1,6 @@
-import { AdapterOptions } from '../types'
-import { NextMiddleware } from '../../types'
-import { BlueprintContext } from '../../setup/types'
+import { AdapterOptions } from '../interfaces'
+import { NextMiddleware } from '../../Pipeline'
+import { BlueprintContext } from '../../setup/interfaces'
 import { getAdapterMiddlewareOptions, isAdapterMiddleware } from './decorators/AdapterMiddleware'
 import { getAdapterErrorHandlerOptions, isAdapterErrorHandler } from './decorators/AdapterErrorHandler'
 

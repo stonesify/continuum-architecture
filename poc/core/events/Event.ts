@@ -2,7 +2,7 @@ import { DataContainer } from '../DataContainer'
 
 export class Event<T> extends DataContainer<T> {
   constructor (
-    public readonly type: string | Symbol,
+    public readonly type: string | symbol,
     protected readonly data: T,
     protected readonly timestamp: Date = new Date()
   ) {
@@ -10,7 +10,7 @@ export class Event<T> extends DataContainer<T> {
   }
 
   /** @returns {string} */
-  get name (): string | Symbol {
+  get name (): string | symbol {
     return this.type
   }
 }

@@ -1,5 +1,5 @@
-import { ErrorHandler, Logger } from "../../core/types";
-import { DataContainer } from "../../core/DataContainer";
+import { ErrorHandler, Logger } from "../../core/interfaces";
+import { StoneBlueprint } from "../../core/StoneBlueprint";
 import { IncomingEvent } from "../../core/events/IncomingEvent";
 import { OutgoingEvent } from "../../core/events/OutgoingEvent";
 import { EventContext } from "../../core/integration/EventContext";
@@ -8,7 +8,7 @@ import { AdapterErrorHandler } from "../../core/integration/setup/decorators/Ada
 @AdapterErrorHandler()
 export class MyAdapterErrorHandler<T extends EventContext<unknown, IncomingEvent, any, OutgoingEvent, unknown>> implements ErrorHandler<Error, T, unknown> {
 
-  constructor(private readonly blueprint: DataContainer) {
+  constructor(private readonly blueprint: StoneBlueprint) {
     console.log('My adapter error handler...')
   }
 

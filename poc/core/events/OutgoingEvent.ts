@@ -1,5 +1,6 @@
 import { Event } from './Event'
 import { IncomingEvent } from './IncomingEvent'
+import { StoneBlueprint } from '../StoneBlueprint'
 
 /**
  * Class representing an OutgoingEvent.
@@ -13,7 +14,7 @@ export class OutgoingEvent<T = unknown> extends Event<Record<string, unknown>> {
    * @type {Symbol}
    * @event OutgoingEvent#OUTGOING_RESPONSE
    */
-  static OUTGOING_RESPONSE: Symbol = Symbol('stone.OutgoingEvent')
+  static OUTGOING_RESPONSE: symbol = Symbol('stone.OutgoingEvent')
 
   constructor (body: T, statusCode?: number, statusMessage?: string) {
     super(OutgoingEvent.OUTGOING_RESPONSE, { body, statusCode, statusMessage })
@@ -38,9 +39,9 @@ export class OutgoingEvent<T = unknown> extends Event<Record<string, unknown>> {
    * Prepare response before send it.
    *
    * @param   {IncomingEvent} event
-   * @returns {this}
+   * @returns {void}
    */
-  prepare (event?: IncomingEvent): OutgoingEvent {
-    return this
+  async prepare (event?: IncomingEvent, blueprint?: StoneBlueprint): Promise<void> {
+    
   }
 }

@@ -1,4 +1,4 @@
-import { Adapter } from '../Adapter'
+import { BaseAdapter } from '../BaseAdapter'
 import { AdapterErrorHandlerMiddleware, AdapterMiddlewareMiddleware } from './middleware'
 
 /**
@@ -17,9 +17,9 @@ export const IntegrationBlueprint = {
 
     // Integration layer configuration options.
     adapter: {
-      [Adapter.NAME]: {
+      [BaseAdapter.NAME]: {
         alias: null,
-        type: Adapter,
+        type: BaseAdapter,
         middleware: {
           incoming: [],
           outgoing: []

@@ -1,6 +1,6 @@
 import { isClass } from '../utils'
-import { Middleware } from '../types'
-import { PlatformResponse } from './types'
+import { Middleware } from '../Pipeline'
+import { PlatformResponse } from './interfaces'
 import { EventContext } from './EventContext'
 import { IncomingEvent } from '../events/IncomingEvent'
 import { OutgoingEvent } from '../events/OutgoingEvent'

@@ -1,10 +1,10 @@
 /**
  * Is function.
  *
- * @param   {any} value
+ * @param   {unknown} value
  * @returns {boolean}
  */
-export const isFunction = (value: any): boolean => typeof value === 'function'
+export const isFunction = (value: unknown): boolean => typeof value === 'function'
 
 /**
  * Is constructor function.
@@ -25,7 +25,23 @@ export const isConstructor = (value: any): boolean => {
 /**
  * Is class.
  *
- * @param   {any} value
+ * @param   {unknown} value
  * @returns {boolean}
  */
-export const isClass = (value: any): boolean => isFunction(value) && /^\s*class/.test(value.toString())
+export const isClass = (value: unknown): boolean => typeof value === 'function' && /^\s*class/.test(value.toString())
+
+/**
+ * Is string.
+ *
+ * @param   {unknown} value
+ * @returns {boolean}
+ */
+export const isString = (value: unknown): boolean => typeof value === 'string' || value instanceof String
+
+/**
+ * Is Pojo.
+ *
+ * @param   {unknown} value
+ * @returns {boolean}
+ */
+export const isPlainObject = (value: unknown): boolean => Object.getPrototypeOf(value) === Object.prototype

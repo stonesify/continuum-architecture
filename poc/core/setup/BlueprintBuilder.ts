@@ -1,8 +1,8 @@
 import { merge } from 'ts-deepmerge'
-import { BlueprintContext } from './types'
+import { BlueprintContext } from './interfaces'
 import { SetupBlueprint } from './Blueprint'
 import { isClass, isFunction } from '../utils'
-import { DataContainer } from '../DataContainer'
+import { StoneBlueprint } from '../StoneBlueprint'
 import { isConfiguration } from './decorators/Configuration'
 import { isConfigMiddleware } from './decorators/ConfigMiddleware'
 import { getBlueprints, hasBlueprints } from '../DecoratorMetadata'
@@ -41,9 +41,9 @@ export class BlueprintBuilder {
   /**
    * Build Stone blueprint.
    *
-   * @returns {DataContainer}
+   * @returns {StoneBlueprint}
    */
-  build (): DataContainer {
+  build (): StoneBlueprint {
     const blueprint = this.getBlueprint()
     const context = { blueprint, modules: this.modules }
     const middleware = blueprint.get<Function[]>('stone.builder.middleware', [])
@@ -66,17 +66,17 @@ export class BlueprintBuilder {
   }
 
   /**
-   * Get Stone blueprint bag.
+   * Get Stone blueprint.
    *
-   * @returns {DataContainer}
+   * @returns {StoneBlueprint}
   */
-  private getBlueprint (): DataContainer {
+  private getBlueprint (): StoneBlueprint {
     const stoneBlueprint = this
       .gatherSetupBlueprint()
       .concat(this.gatherDeclarativeBlueprints(), this.gatherImperativeBlueprints())
       .reduce((prev, curr) => merge(prev, curr), {})
 
-    return new DataContainer(stoneBlueprint)
+    return new StoneBlueprint(stoneBlueprint)
   }
 
   /**

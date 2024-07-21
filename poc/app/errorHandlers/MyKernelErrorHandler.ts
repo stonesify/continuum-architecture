@@ -1,12 +1,12 @@
-import { ErrorHandler, Logger } from "../../core/types";
-import { DataContainer } from "../../core/DataContainer";
+import { ErrorHandler, Logger } from "../../core/interfaces";
+import { StoneBlueprint } from "../../core/StoneBlueprint";
 import { IncomingEvent } from "../../core/events/IncomingEvent";
 import { KernelErrorHandler } from "../../core/initialization/setup/decorators/KernelErrorHandler";
 
 @KernelErrorHandler()
 export class MyKernelErrorHandler<T extends IncomingEvent> implements ErrorHandler<Error, T, unknown> {
 
-  constructor(private readonly blueprint: DataContainer) {
+  constructor(private readonly blueprint: StoneBlueprint) {
     console.log('My kernel error handler...')
   }
 
