@@ -1,5 +1,5 @@
 import { merge } from 'ts-deepmerge'
-import { isFunction } from '../utils'
+import { isFunction } from 'lodash-es'
 import { SetupBlueprint } from './Blueprint'
 import { BlueprintContext } from './interfaces'
 import { StoneBlueprint } from '../StoneBlueprint'

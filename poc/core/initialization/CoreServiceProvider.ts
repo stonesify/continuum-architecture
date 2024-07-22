@@ -2,6 +2,7 @@ import { isClass } from '../utils'
 import { EventEmitter } from './EventEmitter'
 import { ServiceContainer } from '../interfaces'
 import { StoneBlueprint } from '../StoneBlueprint'
+import { getLoggerOptions } from './setup/decorators/Logger'
 import { getServiceOptions } from './setup/decorators/Service'
 import { EventListener, EventSubscriber, ServicePovider } from './interfaces'
 
@@ -35,6 +36,7 @@ export class CoreServiceProvider implements ServicePovider {
     this
       .registerServices()
       .registerListeners()
+      .registerLogger()
       .registerAlias()
   }
 
@@ -50,7 +52,9 @@ export class CoreServiceProvider implements ServicePovider {
   private registerServices (): this {
     this.blueprint.get('stone.kernel.services', []).filter((service) => {
       const { singleton, alias } = getServiceOptions(service)
-      return singleton ? this.container.singleton(service, service, alias) : this.container.binding(service, service, alias)
+      return singleton
+        ? this.container.singleton(service, (container: ServiceContainer) => Reflect.construct(service, [container]), alias)
+        : this.container.binding(service, (container: ServiceContainer) => Reflect.construct(service, [container]), alias)
     })
     return this
   }
@@ -71,6 +75,15 @@ export class CoreServiceProvider implements ServicePovider {
           this.eventEmitter.on(event, (e) => this.container.resolve<EventListener>(listener).handle(e))
         })
       })
+
+    return this
+  }
+
+  private registerLogger (): this {
+    if (this.blueprint.has('stone.logger')) {
+      const logger = this.blueprint.get<Function>('stone.logger')
+      this.container.singleton(logger, () => Reflect.construct(logger, [this.blueprint]), getLoggerOptions(logger).alias)
+    }
 
     return this
   }

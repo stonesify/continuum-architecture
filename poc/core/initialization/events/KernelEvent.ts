@@ -15,7 +15,7 @@ export class KernelEvent<TIncomingEvent, UOutgoingEvent> extends Event<OutgoingE
    * @type {string}
    * @event Event#EVENT_HANDLED
    */
-  static EVENT_HANDLED = 'stonejs@kernel.event_handled'
+  static EVENT_HANDLED = 'Stone@KernelEventHandled'
 
   /**
    * RESPONSE_PREPARED Event name, fires before preparing the response.
@@ -23,7 +23,7 @@ export class KernelEvent<TIncomingEvent, UOutgoingEvent> extends Event<OutgoingE
    * @type {string}
    * @event Event#RESPONSE_PREPARED
    */
-  static RESPONSE_PREPARED = 'stonejs@kernel.response_prepared'
+  static RESPONSE_PREPARED = 'Stone@KernelResponsePrepared'
 
   /**
    * PREPARING_RESPONSE Event name, fires after the response was prepared.
@@ -31,5 +31,5 @@ export class KernelEvent<TIncomingEvent, UOutgoingEvent> extends Event<OutgoingE
    * @type {string}
    * @event Event#PREPARING_RESPONSE
    */
-  static PREPARING_RESPONSE = 'stonejs@kernel.preparing_response'
+  static PREPARING_RESPONSE = 'Stone@KernelPreparingResponse'
 }

@@ -14,7 +14,7 @@ export class OutgoingEvent<T = unknown> extends Event<Record<string, unknown>> {
    * @type {Symbol}
    * @event OutgoingEvent#OUTGOING_RESPONSE
    */
-  static OUTGOING_RESPONSE: symbol = Symbol('stone.OutgoingEvent')
+  static OUTGOING_RESPONSE: symbol = Symbol('Stone@OutgoingEvent')
 
   constructor (body: T, statusCode?: number, statusMessage?: string) {
     super(OutgoingEvent.OUTGOING_RESPONSE, { body, statusCode, statusMessage })

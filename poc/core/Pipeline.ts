@@ -1,5 +1,6 @@
+import { isClass } from './utils'
 import { ServiceContainer } from './interfaces'
-import { isString, isPlainObject, isClass } from './utils'
+import { isString, isPlainObject } from 'lodash-es'
 
 /**
  * Class representing a Pipeline.

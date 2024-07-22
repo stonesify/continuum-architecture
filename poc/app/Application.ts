@@ -1,5 +1,8 @@
-import { StoneApp } from "../core/initialization/setup/decorators/StoneApp";
+import { IncomingEvent } from "../core/events/IncomingEvent";
+import { OutgoingEvent } from "../core/events/OutgoingEvent";
+import { Logger, ServiceContainer } from "../core/interfaces";
 import { IntegrationBlueprint } from "../core/integration/setup/Blueprint";
+import { StoneApp } from "../core/initialization/setup/decorators/StoneApp";
 import { DefaultAdapter } from "../core/integration/setup/decorators/DefaultAdapter";
 
 @StoneApp({
@@ -11,5 +14,19 @@ import { DefaultAdapter } from "../core/integration/setup/decorators/DefaultAdap
 })
 // @DefaultAdapter({ alias: 'StoneAdapter' })
 export class Application {
+  private readonly container: ServiceContainer
+
+  constructor (container: ServiceContainer) {
+    this.container = container
+    console.log('My kernel error handler...')
+  }
+
   static onInit () {}
+
+  handle(event: IncomingEvent): OutgoingEvent {
+    const logger = this.container.make<Logger>('logger')
+    logger.info('IncomingEvent----->')
+    logger.debug(event)
+    return new OutgoingEvent({})
+  }
 }

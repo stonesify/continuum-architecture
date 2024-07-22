@@ -1,4 +1,4 @@
-import { get, set, has, mergeWith } from 'lodash-es'
+import { get, set, has, mergeWith, concat, isPlainObject } from 'lodash-es'
 
 /**
  * Class representing a DataContainer.
@@ -83,7 +83,12 @@ export class DataContainer<UItems> {
    */
   add<T = unknown> (key: string | string[] | Record<string, unknown>, value: T): this {
     if (this.has(key)) {
-      mergeWith(value, this.get(key))
+      const oldValue = this.get(key)
+      if (Array.isArray(oldValue)) {
+        value = concat(oldValue, value)
+      } else if (isPlainObject(oldValue) && isPlainObject(value)) {
+        mergeWith(oldValue, value)
+      }
     }
 
     return this.set(key, value)

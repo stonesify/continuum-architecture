@@ -1,4 +1,4 @@
-import { isFunction } from '../utils'
+import { isFunction } from 'lodash-es'
 import { EventContext } from './EventContext'
 import { StoneBlueprint } from '../StoneBlueprint'
 import { ErrorHandler, Logger } from '../interfaces'

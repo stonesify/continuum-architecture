@@ -6,6 +6,10 @@ import { KernelMiddleware } from "../../../core/initialization/setup/decorators/
 
 @KernelMiddleware({ terminate: true })
 export class MyTerminateKernelMiddleware<T extends EventContext<unknown, IncomingEvent, any, OutgoingEvent, unknown>> {
+  constructor () {
+    console.log('My terminating kernel middleware');
+  }
+
   handle(context: T, next: NextMiddleware<T>) {
     console.log('Kernel terminate event middleware...');
     return next(context)

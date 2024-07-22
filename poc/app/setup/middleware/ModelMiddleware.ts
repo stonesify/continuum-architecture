@@ -5,6 +5,10 @@ import { ConfigMiddleware } from "../../../core/setup/decorators/ConfigMiddlewar
 
 @ConfigMiddleware()
 export class ModelMiddleware<T extends BlueprintContext> {
+  constructor () {
+    console.log('My Setup middleware');
+  }
+
   handle(context: T, next: NextMiddleware<T>) {
     const models = context.modules
       .filter((module) => typeof module === 'function' && isModel(module))

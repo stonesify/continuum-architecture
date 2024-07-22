@@ -1,8 +1,14 @@
+import { StoneBlueprint } from "../core/StoneBlueprint";
 import { Logger as LoggerInterface } from "../core/interfaces";
 import { Logger } from "../core/initialization/setup/decorators/Logger";
 
-@Logger()
+@Logger({ alias: ['log', 'logger'] })
 export class MyLogger implements LoggerInterface {
+
+  constructor(private readonly blueprint: StoneBlueprint) {
+    console.log('My Logger...', blueprint.get('stone.name'))
+  }
+
   init (): void {}
 
   log (level: string, message: unknown): void {

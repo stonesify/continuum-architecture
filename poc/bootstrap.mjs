@@ -1,11 +1,14 @@
 import * as app from "./dist/app.js";
-import { BlueprintBuilder } from "./dist/core.js";
+// import { BlueprintBuilder } from "./dist/core.js";
+import { StoneApplication } from "./dist/core.js";
 
-const blueprint = new BlueprintBuilder(app).build()
+// const blueprint = new BlueprintBuilder(app).build()
 
-console.log(blueprint.all().stone.builder)
-console.log('--------------------------------');
-console.log(blueprint.all().stone.adapter)
-console.log(blueprint.all().stone.adapter.default.middleware)
-console.log('--------------------------------');
-console.log(blueprint.all().stone.kernel)
+// console.log(blueprint.all().stone.builder)
+// console.log('--------------------------------');
+// console.log(blueprint.all().stone.adapter)
+// console.log(blueprint.all().stone.adapter.default.middleware)
+// console.log('--------------------------------');
+// console.log(blueprint.all().stone.kernel)
+
+export const stone = await StoneApplication.create(app).run()

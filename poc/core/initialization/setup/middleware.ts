@@ -18,7 +18,7 @@ export function MainHandlerSetupMMiddleware<T extends BlueprintContext> (context
 
   context.blueprint
     .set('stone.kernel.handler', handler)
-    .add('stone.kernel.providers', [handler])
+    .add('stone.kernel.providers', handler)
 
   return next(context)
 }
@@ -37,7 +37,11 @@ export function AdapterOnInitSubscribersSetupMMiddleware<T extends BlueprintCont
     .forEach(([name]) => {
       context.blueprint.add(
         `stone.adapter.${name}.hooks.onInit`,
-        context.blueprint.get<ServicePovider[]>('stone.kernel.providers', []).filter((provider) => 'onInit' in provider)
+        context
+          .blueprint
+          .get<ServicePovider[]>('stone.kernel.providers', [])
+          .filter((provider) => Reflect.has(provider, 'onInit'))
+          .map((provider) => () => provider.onInit?.())
       )
     })
 

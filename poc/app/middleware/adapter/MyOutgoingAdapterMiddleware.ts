@@ -6,6 +6,10 @@ import { AdapterMiddleware } from "../../../core/integration/setup/decorators/Ad
 
 @AdapterMiddleware({ outgoing: true })
 export class MyOutgoingAdapterMiddleware<T extends EventContext<unknown, IncomingEvent, any, OutgoingEvent, unknown>> {
+  constructor () {
+    console.log('My outgoing adapter middleware');
+  }
+
   handle(context: T, next: NextMiddleware<T>) {
     console.log('Adapter outgoing event middleware...');
     return next(context)

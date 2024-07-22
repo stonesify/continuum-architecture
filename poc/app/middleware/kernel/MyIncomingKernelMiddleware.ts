@@ -6,6 +6,10 @@ import { KernelMiddleware } from "../../../core/initialization/setup/decorators/
 
 @KernelMiddleware()
 export class MyIncomingKernelMiddleware<T extends EventContext<unknown, IncomingEvent, any, OutgoingEvent, unknown>> {
+  constructor () {
+    console.log('My incoming kernel middleware');
+  }
+
   handle(context: T, next: NextMiddleware<T>) {
     console.log('Kernel incoming event middleware...');
     return next(context)
