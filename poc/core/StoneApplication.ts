@@ -23,8 +23,8 @@ export class StoneApplication {
     return Reflect.construct(this.gatherCurrentAdapter(blueprint), [blueprint])
   }
 
-  run () {
-    return this.initialize(this.makeBlueprint()).run()
+  async run () {
+    return await this.initialize(this.makeBlueprint()).run()
   }
 
   private makeBlueprint (): StoneBlueprint {

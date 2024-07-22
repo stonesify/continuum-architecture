@@ -7,7 +7,7 @@ import { ServiceContainer } from './ServiceContainer'
 import { IncomingEvent } from '../events/IncomingEvent'
 import { OutgoingEvent } from '../events/OutgoingEvent'
 import { ClassEventHandler } from '../integration/interfaces'
-import { KernelResponseContext, RouterInterface, ServicePovider } from './interfaces'
+import { OutgoingEventContext, RouterInterface, ServicePovider } from './interfaces'
 
 export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends OutgoingEvent> implements ClassEventHandler<TIncomingEvent, UOutgoingEvent> {
   private booted: boolean
@@ -25,7 +25,7 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
     this.registeredProviders = new Set()
     this.eventEmitter = new EventEmitter()
     this.container = new ServiceContainer()
-    
+
     this.registerBaseBindings()
   }
 
@@ -33,7 +33,7 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
     return this.container.resolve(this.blueprint.get('stone.kernel.handler'))
   }
 
-  private get errorHandler (): ErrorHandler<Error, KernelResponseContext<TIncomingEvent, UOutgoingEvent>, UOutgoingEvent> | undefined {
+  private get errorHandler (): ErrorHandler<Error, OutgoingEventContext<TIncomingEvent, UOutgoingEvent>, UOutgoingEvent> | undefined {
     if (this.blueprint.has('stone.kernel.errorHandler')) {
       return this.container.resolve(this.blueprint.get('stone.kernel.errorHandler'))
     } else {
@@ -41,7 +41,7 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
     }
   }
 
-  private get responseContext (): KernelResponseContext<TIncomingEvent, UOutgoingEvent> {
+  private get responseContext (): OutgoingEventContext<TIncomingEvent, UOutgoingEvent> {
     return { incomingEvent: this.incomingEvent, outgoingEvent: this.outgoingEvent }
   }
 
@@ -50,17 +50,17 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
     return this.blueprint.get('stone.kernel.middleware.skip', false)
   }
 
-  private get incomingMiddleware (): Middleware<TIncomingEvent>[] {
+  private get incomingMiddleware (): Array<Middleware<TIncomingEvent>> {
     return this.skipMiddleware ? [] : this.blueprint.get('stone.kernel.middleware.incoming', [])
   }
 
   /** @return {Function[]} */
-  private get outgoingMiddleware (): Middleware<KernelResponseContext<TIncomingEvent, UOutgoingEvent>>[] {
+  private get outgoingMiddleware (): Array<Middleware<OutgoingEventContext<TIncomingEvent, UOutgoingEvent>>> {
     return this.skipMiddleware ? [] : this.blueprint.get('stone.kernel.middleware.outgoing', [])
   }
 
   /** @return {Function[]} */
-  private get terminateMiddleware (): Middleware<KernelResponseContext<TIncomingEvent, UOutgoingEvent>>[] {
+  private get terminateMiddleware (): Array<Middleware<OutgoingEventContext<TIncomingEvent, UOutgoingEvent>>> {
     return this.skipMiddleware ? [] : this.blueprint.get('stone.kernel.middleware.terminate', [])
   }
 
@@ -74,9 +74,9 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
     try {
       await this.onBootstrap(event)
       await this.sendEventThroughDestination(event)
-      return this.prepareOutgoingEvent(event)
+      return await this.prepareOutgoingEvent(event)
     } catch (error) {
-      if (this.errorHandler) {
+      if (this.errorHandler != null) {
         return this.errorHandler.report(error, this.responseContext).render(error, this.responseContext)
       } else {
         throw error
@@ -87,7 +87,7 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
   async onTerminate (): Promise<void> {
     await this.callProvidersOnTerminateHook()
     await Pipeline
-      .create<KernelResponseContext<TIncomingEvent, UOutgoingEvent>>()
+      .create<OutgoingEventContext<TIncomingEvent, UOutgoingEvent>>()
       .send(this.responseContext)
       .through(this.terminateMiddleware)
       .serviceContainer(this.container)
@@ -111,7 +111,7 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
       .send(event)
       .through(this.incomingMiddleware)
       .serviceContainer(this.container)
-      .then<Promise<UOutgoingEvent>>((event: TIncomingEvent) => this.prepareDestination(event)) as UOutgoingEvent
+      .then<Promise<UOutgoingEvent>>(async (event: TIncomingEvent) => await this.prepareDestination(event)) as UOutgoingEvent
   }
 
   private async prepareDestination (event: TIncomingEvent): Promise<UOutgoingEvent> {
@@ -128,7 +128,7 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
 
     // If no routers are bound dispatch event to app handler.
     if (Reflect.has(this.handler, 'handle')) {
-      return this.handler.handle(event)
+      return await this.handler.handle(event)
     }
 
     throw new TypeError('No router nor handler has been provided.')
@@ -140,7 +140,7 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
     }
 
     this.container.instance('response', this.outgoingEvent)
-    
+
     this.eventEmitter.emitEvent(new KernelEvent(KernelEvent.PREPARING_RESPONSE, this.responseContext))
 
     await this.outgoingEvent.prepare(event, this.blueprint)
@@ -148,7 +148,7 @@ export class Kernel<TIncomingEvent extends IncomingEvent, UOutgoingEvent extends
     this.eventEmitter.emitEvent(new KernelEvent(KernelEvent.RESPONSE_PREPARED, this.responseContext))
 
     this.outgoingEvent = await Pipeline
-      .create<KernelResponseContext<TIncomingEvent, UOutgoingEvent>>()
+      .create<OutgoingEventContext<TIncomingEvent, UOutgoingEvent>>()
       .send(this.responseContext)
       .through(this.outgoingMiddleware)
       .serviceContainer(this.container)

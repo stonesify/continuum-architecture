@@ -14,12 +14,12 @@ export interface ErrorHandler<TError extends Error, UContext, VResponse> {
   render: (error: TError, context: UContext) => VResponse
 }
 
-
-export interface ServiceContainerInterface<T = unknown> {
-  make<T>(key: unknown): T
-  bound (key: unknown): boolean
-  resolve<T>(key: unknown): T
-  instance(key: unknown, value: unknown, alias?: string | string[]): this
-  binding (key: unknown, resolver: Function, alias?: string | string[]): this
-  singleton (key: unknown, resolver: Function, alias?: string | string[]): this
+export interface ServiceContainer {
+  make: <T>(key: unknown) => T
+  alias (key: unknown, aliases: string | string[]): this
+  bound: (key: unknown) => boolean
+  resolve: <T>(key: unknown) => T
+  instance: (key: unknown, value: unknown, alias?: string | string[]) => this
+  binding: (key: unknown, resolver: Function, alias?: string | string[]) => this
+  singleton: (key: unknown, resolver: Function, alias?: string | string[]) => this
 }

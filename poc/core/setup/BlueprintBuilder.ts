@@ -1,8 +1,9 @@
 import { merge } from 'ts-deepmerge'
-import { BlueprintContext } from './interfaces'
+import { isFunction } from '../utils'
 import { SetupBlueprint } from './Blueprint'
-import { isClass, isFunction } from '../utils'
+import { BlueprintContext } from './interfaces'
 import { StoneBlueprint } from '../StoneBlueprint'
+import { Middleware, Pipeline } from '../Pipeline'
 import { isConfiguration } from './decorators/Configuration'
 import { isConfigMiddleware } from './decorators/ConfigMiddleware'
 import { getBlueprints, hasBlueprints } from '../DecoratorMetadata'
@@ -45,24 +46,17 @@ export class BlueprintBuilder {
    */
   build (): StoneBlueprint {
     const blueprint = this.getBlueprint()
-    const context = { blueprint, modules: this.modules }
-    const middleware = blueprint.get<Function[]>('stone.builder.middleware', [])
+    const context: BlueprintContext = { blueprint, modules: this.modules }
+    const defaultPriority = blueprint.get<number>('stone.builder.defaultMiddlewarePriority', 10)
+    const middleware = blueprint.get<Middleware<BlueprintContext>[]>('stone.builder.middleware', [])
 
-    const runMiddleware = (index: number = 0): BlueprintContext => {
-      if (index < middleware.length) {
-        const currentMiddleware = middleware[index]
-        if (isClass(currentMiddleware)) {
-          const middlewareInstance = Reflect.construct(currentMiddleware, [])
-          return middlewareInstance.handle(context, () => runMiddleware(index + 1))
-        } else {
-          return currentMiddleware(context, () => runMiddleware(index + 1))
-        }
-      } else {
-        return context
-      }
-    }
-
-    return runMiddleware().blueprint
+    return Pipeline
+      .create<BlueprintContext>()
+      .sync()
+      .send(context)
+      .through(middleware)
+      .defaultPriority(defaultPriority)
+      .then<StoneBlueprint>(({ blueprint }) => blueprint) as StoneBlueprint
   }
 
   /**

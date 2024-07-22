@@ -42,6 +42,6 @@ export class OutgoingEvent<T = unknown> extends Event<Record<string, unknown>> {
    * @returns {void}
    */
   async prepare (event?: IncomingEvent, blueprint?: StoneBlueprint): Promise<void> {
-    
+
   }
 }

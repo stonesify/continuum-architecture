@@ -1,7 +1,7 @@
 import { isFunction } from '../utils'
 import { EventContext } from './EventContext'
-import { ErrorHandler, Logger } from '../interfaces'
 import { StoneBlueprint } from '../StoneBlueprint'
+import { ErrorHandler, Logger } from '../interfaces'
 import { IncomingEvent } from '../events/IncomingEvent'
 import { OutgoingEvent } from '../events/OutgoingEvent'
 import { EventContextMapper } from './EventContextMapper'
@@ -14,7 +14,7 @@ export class BaseAdapter<
   WOutgoingEvent extends OutgoingEvent,
   XContext = unknown
 > implements Adapter {
-  static readonly NAME = 'default'
+  static readonly NAME = 'baseAdapter'
 
   protected readonly logger?: Logger
   protected readonly hooks: Record<AdapterHooks, Function[]>

@@ -1,7 +1,6 @@
-import { isClass } from '../utils'
-import { Middleware } from '../Pipeline'
-import { PlatformResponse } from './interfaces'
 import { EventContext } from './EventContext'
+import { PlatformResponse } from './interfaces'
+import { Middleware, Pipeline } from '../Pipeline'
 import { IncomingEvent } from '../events/IncomingEvent'
 import { OutgoingEvent } from '../events/OutgoingEvent'
 
@@ -23,20 +22,10 @@ export class EventContextMapper<TMessage, UEvent extends IncomingEvent, VRespons
     context: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>,
     middleware: Array<Middleware<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>>>
   ): Promise<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>> {
-    const runMiddleware = async (index: number = 0): Promise<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>> => {
-      if (index < middleware.length) {
-        const currentMiddleware = middleware[index] as Function
-        if (isClass(currentMiddleware)) {
-          const middlewareInstance = Reflect.construct(currentMiddleware, [])
-          return await middlewareInstance.handle(context, async () => await runMiddleware(index + 1))
-        } else {
-          return await currentMiddleware(context, async () => await runMiddleware(index + 1))
-        }
-      } else {
-        return context
-      }
-    }
-
-    return await runMiddleware()
+    return Pipeline
+      .create<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>>()
+      .send(context)
+      .through(middleware)
+      .thenReturn()
   }
 }

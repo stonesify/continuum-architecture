@@ -11,16 +11,25 @@ export function AdapterMiddlewareMiddleware<T extends BlueprintContext> (context
   Object
     .entries(adapters)
     .forEach(([name, options]) => {
-      const incoming = middleware.filter((module) => {
-        const params = getAdapterMiddlewareOptions(module)
-        return [name, options.alias, undefined].includes(params.adapter) && !params.outgoing
-      })
-      const outgoing = middleware.filter((module) => {
-        const params = getAdapterMiddlewareOptions(module)
-        return [name, options.alias, undefined].includes(params.adapter) && params.outgoing
-      })
-      context.blueprint.add(`stone.adapter.${name}.middleware.incoming`, incoming)
-      context.blueprint.add(`stone.adapter.${name}.middleware.outgoing`, outgoing)
+      context.blueprint.add(
+        `stone.adapter.${name}.middleware.incoming`,
+        middleware
+          .filter((module) => {
+            const params = getAdapterMiddlewareOptions(module)
+            return [name, options.alias, undefined].includes(params.adapter) && !params.outgoing
+          })
+          .map((module) => ({ pipe: module, priority: getAdapterMiddlewareOptions(module).priority ?? 10 }))
+      )
+
+      context.blueprint.add(
+        `stone.adapter.${name}.middleware.outgoing`,
+        middleware
+          .filter((module) => {
+            const params = getAdapterMiddlewareOptions(module)
+            return [name, options.alias, undefined].includes(params.adapter) && params.outgoing
+          })
+          .map((module) => ({ pipe: module, priority: getAdapterMiddlewareOptions(module).priority ?? 10 }))
+      )
     })
 
   return next(context)

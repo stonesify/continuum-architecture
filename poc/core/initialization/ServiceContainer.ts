@@ -1,4 +1,4 @@
-import { isConstructor } from "../utils"
+import { isConstructor } from '../utils'
 
 export class ServiceContainer {
   private readonly bindings: Map<unknown, Binding> = new Map()
@@ -27,7 +27,7 @@ export class ServiceContainer {
     return this.aliases.get(alias) as T
   }
 
-  instance(key: unknown, value: unknown, alias?: string | string[]) {
+  instance (key: unknown, value: unknown, alias?: string | string[]) {
     this.bindings.set(key, { resolve: <T>() => value as T })
     return this.alias(key, alias ?? [])
   }
@@ -83,5 +83,5 @@ export class ServiceContainer {
 interface Binding {
   value?: unknown
   resolved?: boolean
-  resolve<T>(container: ServiceContainer): T
+  resolve: <T>(container: ServiceContainer) => T
 }

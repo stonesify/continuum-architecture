@@ -1,5 +1,5 @@
-import { Event } from "../../events/Event"
-import { KernelResponseContext } from "../interfaces"
+import { Event } from '../../events/Event'
+import { OutgoingEventContext } from '../interfaces'
 
 /**
  * Class representing a kernel Event.
@@ -8,7 +8,7 @@ import { KernelResponseContext } from "../interfaces"
  *
  * @extends Event
  */
-export class KernelEvent<TIncomingEvent, UOutgoingEvent> extends Event<KernelResponseContext<TIncomingEvent, UOutgoingEvent>> {
+export class KernelEvent<TIncomingEvent, UOutgoingEvent> extends Event<OutgoingEventContext<TIncomingEvent, UOutgoingEvent>> {
   /**
    * EVENT_HANDLED Event name, fires when event was intercepted by kernel.
    *

@@ -1,4 +1,5 @@
-import { AdapterHandlerFactoryMiddleware, AdapterOnInitSubscribersMiddleware, KernelErrorHandlerMiddleware, KernelMiddlewareMiddleware, LoggerMiddleware, MainHandlerMiddleware } from './middleware'
+import { KernelSetupMiddleware } from './middleware'
+import { CoreServiceProvider } from '../CoreServiceProvider'
 
 /**
  * Initialization Blueprint.
@@ -13,14 +14,7 @@ export const InitializationBlueprint = {
 
     // Setup layer configuration options.
     builder: {
-      middleware: [
-        MainHandlerMiddleware,
-        LoggerMiddleware,
-        KernelMiddlewareMiddleware,
-        KernelErrorHandlerMiddleware,
-        AdapterHandlerFactoryMiddleware,
-        AdapterOnInitSubscribersMiddleware
-      ]
+      middleware: KernelSetupMiddleware
     },
 
     // Initialization layer configuration options.
@@ -36,7 +30,7 @@ export const InitializationBlueprint = {
       aliases: {},
       services: [],
       listeners: {},
-      providers: [],
+      providers: [CoreServiceProvider],
       subscribers: [],
       errorHandler: null
     }

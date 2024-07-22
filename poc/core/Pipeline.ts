@@ -1,5 +1,5 @@
-import { ServiceContainerInterface } from './interfaces'
-import { isConstructor, isString, isPlainObject } from './utils'
+import { ServiceContainer } from './interfaces'
+import { isString, isPlainObject, isClass } from './utils'
 
 /**
  * Class representing a Pipeline.
@@ -8,7 +8,7 @@ import { isConstructor, isString, isPlainObject } from './utils'
  */
 export class Pipeline<TPassable = unknown> {
   /** @type {Pipe[]} */
-  private pipes: Pipe<TPassable>[] = []
+  private pipes: Array<Pipe<TPassable>> = []
 
   /** @type {number} */
   private priority: number = 10
@@ -23,7 +23,7 @@ export class Pipeline<TPassable = unknown> {
   private method: string = 'handle'
 
   /** @type {Container} */
-  private container?: ServiceContainerInterface
+  private container?: ServiceContainer
 
   /**
    * Create a pipeline.
@@ -39,7 +39,7 @@ export class Pipeline<TPassable = unknown> {
    *
    * @returns {PipeDefinition[]}
    */
-  private get pipeDefinitions (): PipeDefinition<TPassable>[] {
+  private get pipeDefinitions (): Array<PipeDefinition<TPassable>> {
     return this.pipes
       .map((pipe) => isPlainObject(pipe) ? pipe : ({ pipe, priority: this.priority }))
       .map((pipe) => pipe as PipeDefinition<TPassable>)
@@ -51,17 +51,17 @@ export class Pipeline<TPassable = unknown> {
    *
    * @returns {PipeItem<TPassable>[]}
    */
-  private get pipeItems (): PipeItem<TPassable>[] {
+  private get pipeItems (): Array<PipeItem<TPassable>> {
     return this.pipeDefinitions.map((v) => v.pipe)
   }
 
   /**
    * Set pipes service container.
    *
-   * @param   {ServiceContainerInterface} container
+   * @param   {ServiceContainer} container
    * @returns {this}
    */
-  serviceContainer (container: ServiceContainerInterface): this {
+  serviceContainer (container: ServiceContainer): this {
     this.container = container
     return this
   }
@@ -105,7 +105,7 @@ export class Pipeline<TPassable = unknown> {
    * @param   {Pipe<TPassable>[]} pipes
    * @returns {this}
    */
-  through (pipes: Pipe<TPassable>[]): this {
+  through (pipes: Array<Pipe<TPassable>>): this {
     this.pipes = pipes
     return this
   }
@@ -116,7 +116,7 @@ export class Pipeline<TPassable = unknown> {
    * @param   {(Pipe<TPassable> | Pipe<TPassable>[])} pipe
    * @returns {this}
    */
-  pipe (pipe: Pipe<TPassable> | Pipe<TPassable>[]): this {
+  pipe (pipe: Pipe<TPassable> | Array<Pipe<TPassable>>): this {
     this.pipes = this.pipes.concat(pipe)
     return this
   }
@@ -143,9 +143,9 @@ export class Pipeline<TPassable = unknown> {
       .pipeItems
       .reverse()
       .reduce<NextPipe<TPassable | UOutput> | NextPromisePipe<TPassable | UOutput>>(
-        this.isSync ? this.reducer() : this.asyncReducer(),
-        (passable: TPassable) => destination(passable)
-      )(this.passable)
+      this.isSync ? this.reducer() : this.asyncReducer(),
+      (passable: TPassable) => destination(passable)
+    )(this.passable)
   }
 
   /**
@@ -166,10 +166,10 @@ export class Pipeline<TPassable = unknown> {
   private asyncReducer (): PipelinePromiseReducer<TPassable> {
     return (next: NextPipe<TPassable>, pipe: PipeItem<TPassable>): NextPromisePipe<TPassable> => {
       return async (passable: TPassable): Promise<TPassable> => {
-        if (isString(pipe) || isConstructor(pipe)) {
-          return await this.executePipe(pipe, this.makeArgs(passable, next, pipe))
+        if (isString(pipe) || isClass(pipe)) {
+          return this.executePipe(pipe, this.makeArgs(passable, next, pipe))
         } else if (typeof pipe === 'function') {
-          return await Reflect.apply(pipe, undefined, this.makeArgs(passable, next, pipe))
+          return Reflect.apply(pipe, undefined, this.makeArgs(passable, next, pipe))
         } else {
           throw new TypeError('Pipe must be a function, a class or a service alias.')
         }
@@ -186,7 +186,7 @@ export class Pipeline<TPassable = unknown> {
   private reducer (): PipelineReducer<TPassable> {
     return (next: NextPipe<TPassable>, pipe: PipeItem<TPassable>): NextPipe<TPassable> => {
       return (passable: TPassable): TPassable => {
-        if (isString(pipe) || isConstructor(pipe)) {
+        if (isString(pipe) || isClass(pipe)) {
           return this.executePipe(pipe, this.makeArgs(passable, next, pipe))
         } else if (typeof pipe === 'function') {
           return Reflect.apply(pipe, undefined, this.makeArgs(passable, next, pipe))
@@ -208,7 +208,7 @@ export class Pipeline<TPassable = unknown> {
   private executePipe (pipe: PipeItem<TPassable>, args: PipeArgs<TPassable>): TPassable {
     let instance: Function
 
-    if (this.container) {
+    if (this.container != null) {
       instance = this.container.resolve(pipe)
     } else if (typeof pipe === 'function') {
       instance = Reflect.construct(pipe, [])
@@ -219,7 +219,7 @@ export class Pipeline<TPassable = unknown> {
     if (!Reflect.has(instance, this.method)) {
       throw new TypeError(`No method with this name(${this.method}) exists in this constructor(${instance.constructor.name})`)
     }
-  
+
     return instance[this.method](...args)
   }
 
@@ -247,32 +247,22 @@ type PipeItem<TPassable> = string | ClassBasedPipe<TPassable> | FunctionalPipe<T
 type Pipe<TPassable> = PipeDefinition<TPassable> | PipeItem<TPassable>
 
 interface ClassBasedPipe<TPassable> {
-  handle (passable: TPassable, next: NextPipe<TPassable>, params?: unknown): TPassable
+  handle: (passable: TPassable, next: NextPipe<TPassable>, params?: unknown) => TPassable
 }
 
 type FunctionalPipe<TPassable> = (passable: TPassable, next: NextPipe<TPassable>, params?: unknown) => TPassable
 
 type PipeArgs<TPassable> = [TPassable, NextPipe<TPassable>, unknown]
 
-interface PipelineDestinationCallback<TPassable, UOutput> {
-  (passable: TPassable): UOutput
-}
+type PipelineDestinationCallback<TPassable, UOutput> = (passable: TPassable) => UOutput
 
-interface NextPipe<TPassable> {
-  (passable: TPassable): TPassable
-}
+type NextPipe<TPassable> = (passable: TPassable) => TPassable
 
-interface NextPromisePipe<TPassable> {
-  (passable: TPassable): Promise<TPassable>
-}
+type NextPromisePipe<TPassable> = (passable: TPassable) => Promise<TPassable>
 
-interface PipelineReducer<TPassable> {
-  (next: NextPipe<TPassable>, pipe: PipeItem<TPassable>): NextPipe<TPassable>
-}
+type PipelineReducer<TPassable> = (next: NextPipe<TPassable>, pipe: PipeItem<TPassable>) => NextPipe<TPassable>
 
-interface PipelinePromiseReducer<TPassable> {
-  (next: NextPipe<TPassable>, pipe: PipeItem<TPassable>): NextPromisePipe<TPassable>
-}
+type PipelinePromiseReducer<TPassable> = (next: NextPipe<TPassable>, pipe: PipeItem<TPassable>) => NextPromisePipe<TPassable>
 
 export type NextMiddleware<TPassable> = NextPipe<TPassable>
 
