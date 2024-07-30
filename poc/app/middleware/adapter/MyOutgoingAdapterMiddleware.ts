@@ -1,17 +1,17 @@
-import { NextMiddleware } from "../../../core/Pipeline";
-import { IncomingEvent } from "../../../core/events/IncomingEvent";
-import { OutgoingEvent } from "../../../core/events/OutgoingEvent";
-import { EventContext } from "../../../core/integration/EventContext";
-import { AdapterMiddleware } from "../../../core/integration/setup/decorators/AdapterMiddleware";
+import { NextMiddleware } from '../../../core/Pipeline'
+import { IncomingEvent } from '../../../core/events/IncomingEvent'
+import { OutgoingEvent } from '../../../core/events/OutgoingEvent'
+import { EventContext } from '../../../core/integration/EventContext'
+import { AdapterMiddleware } from '../../../core/integration/setup/decorators/AdapterMiddleware'
 
 @AdapterMiddleware({ outgoing: true })
 export class MyOutgoingAdapterMiddleware<T extends EventContext<unknown, IncomingEvent, any, OutgoingEvent, unknown>> {
   constructor () {
-    console.log('My outgoing adapter middleware');
+    console.log('My App outgoing adapter middleware...')
   }
 
-  handle(context: T, next: NextMiddleware<T>) {
-    console.log('Adapter outgoing event middleware...');
+  handle (context: T, next: NextMiddleware<T>) {
+    console.log('Adapter outgoing event middleware...')
     return next(context)
   }
 }

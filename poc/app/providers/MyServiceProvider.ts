@@ -1,6 +1,6 @@
-import { Logger } from "../../core/interfaces";
-import { ServiceContainer } from "../../core/initialization/ServiceContainer";
-import { Provider } from "../../core/initialization/setup/decorators/Provider";
+import { Logger } from '../../core/interfaces'
+import { ServiceContainer } from '../../core/initialization/ServiceContainer'
+import { Provider } from '../../core/initialization/setup/decorators/Provider'
 
 @Provider()
 export class MyServiceProvider {
@@ -8,7 +8,7 @@ export class MyServiceProvider {
 
   constructor (container: ServiceContainer) {
     this.container = container
-    console.log('My provider....');
+    console.log('My App Service provider....')
   }
 
   boot () {

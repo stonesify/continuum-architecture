@@ -1,9 +1,9 @@
-import { Configuration } from "../../core/setup/decorators/Configuration";
+import { Configuration } from '../../core/setup/decorators/Configuration'
 
 @Configuration()
 export class AppConfig {
   constructor () {
-    console.log('My Imperative config...');
+    console.log('My App Imperative config...')
   }
 
   readonly stone = {

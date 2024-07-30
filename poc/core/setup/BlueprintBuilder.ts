@@ -48,7 +48,7 @@ export class BlueprintBuilder {
     const blueprint = this.getBlueprint()
     const context: BlueprintContext = { blueprint, modules: this.modules }
     const defaultPriority = blueprint.get<number>('stone.builder.defaultMiddlewarePriority', 10)
-    const middleware = blueprint.get<Middleware<BlueprintContext>[]>('stone.builder.middleware', [])
+    const middleware = blueprint.get<Array<Middleware<BlueprintContext>>>('stone.builder.middleware', [])
 
     return Pipeline
       .create<BlueprintContext>()

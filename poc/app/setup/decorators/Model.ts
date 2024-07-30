@@ -1,5 +1,4 @@
-import { Decorator, classDecorator, get, has } from "../../../core/DecoratorMetadata"
-
+import { Decorator, classDecorator, get, has } from '../../../core/DecoratorMetadata'
 
 /**
  * A unique symbol key for the decorator metadata.
@@ -31,7 +30,6 @@ export const Model = <TFunction extends Function>(options?: ModelOptions): Decor
 export const isModel = (Class: Function): boolean => has(Class, META_KEY)
 
 export const getModelOptions = (Class: Function): ModelOptions => get(Class, META_KEY)
-
 
 interface ModelOptions {
   table?: string

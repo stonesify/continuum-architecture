@@ -1,23 +1,23 @@
-import { Event } from './Event'
-import { IncomingEvent } from './IncomingEvent'
-import { StoneBlueprint } from '../StoneBlueprint'
+import { StoneBlueprint } from '../../../core/StoneBlueprint'
+import { IncomingEvent } from '../../../core/events/IncomingEvent'
+import { OutgoingEvent } from '../../../core/events/OutgoingEvent'
 
 /**
- * Class representing an OutgoingEvent.
+ * Class representing an OutgoingHttpEvent.
  *
  * @author Mr. Stone <evensstone@gmail.com>
  */
-export class OutgoingEvent<T = unknown> extends Event<Record<string, unknown>> {
+export class OutgoingHttpEvent<T = unknown> extends OutgoingEvent {
   /**
    * OUTGOING_RESPONSE Event name, fires on reponse to the incoming event.
    *
    * @type {Symbol}
-   * @event OutgoingEvent#OUTGOING_RESPONSE
+   * @event OutgoingHttpEvent#OUTGOING_RESPONSE
    */
-  static OUTGOING_RESPONSE: symbol = Symbol('Stone@OutgoingEvent')
+  static OUTGOING_RESPONSE: symbol = Symbol('Stone@OutgoingHttpEvent')
 
-  constructor (body: T, statusCode?: number, statusMessage?: string, type: string | symbol = OutgoingEvent.OUTGOING_RESPONSE) {
-    super({ body, statusCode, statusMessage }, type)
+  constructor (body: T, statusCode?: number, statusMessage?: string) {
+    super({ body, statusCode, statusMessage }, statusCode, statusMessage, OutgoingHttpEvent.OUTGOING_RESPONSE)
   }
 
   /** @returns {T} */

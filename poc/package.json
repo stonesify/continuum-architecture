@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
+    "build:prod": "npm run build && npm run build -- rollup-prod.config.mjs ",
     "start": "npm run build && node bootstrap.mjs",
     "lint": "ts-standard core",
-    "lint:fix": "ts-standard --fix core"
+    "lint:fix": "ts-standard --fix core app"
   },
   "author": "Mr. Stone",
   "license": "MIT",

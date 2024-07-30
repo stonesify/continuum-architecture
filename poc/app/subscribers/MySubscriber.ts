@@ -1,7 +1,7 @@
-import { Logger, ServiceContainer } from "../../core/interfaces";
-import { EventEmitter } from "../../core/initialization/EventEmitter";
-import { KernelEvent } from "../../core/initialization/events/KernelEvent";
-import { Subscriber } from "../../core/initialization/setup/decorators/Subscriber";
+import { Logger, ServiceContainer } from '../../core/interfaces'
+import { EventEmitter } from '../../core/initialization/EventEmitter'
+import { KernelEvent } from '../../core/initialization/events/KernelEvent'
+import { Subscriber } from '../../core/initialization/setup/decorators/Subscriber'
 
 @Subscriber()
 export class MySubscriber {
@@ -9,7 +9,7 @@ export class MySubscriber {
 
   constructor (container: ServiceContainer) {
     this.logger = container.make('logger')
-    console.log('My subscriber');
+    console.log('My App subscriber...')
   }
 
   subscribe (eventEmitter: EventEmitter) {

@@ -1,3 +1,4 @@
+import { BaseAdapter } from '../../BaseAdapter'
 import { IntegrationBlueprint } from '../Blueprint'
 import { Decorator, blueprintClassDecorator } from '../../../DecoratorMetadata'
 
@@ -14,7 +15,7 @@ import { Decorator, blueprintClassDecorator } from '../../../DecoratorMetadata'
  * }
  */
 export function DefaultAdapter<TFunction extends Function> (options: AdapterOptions = {}): Decorator<TFunction, void> {
-  return blueprintClassDecorator([[IntegrationBlueprint, { stone: { adapter: { default: options } } }]])
+  return blueprintClassDecorator([[IntegrationBlueprint, { stone: { adapter: { [BaseAdapter.NAME]: options } } }]])
 }
 
 /**

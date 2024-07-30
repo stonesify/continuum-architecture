@@ -22,7 +22,7 @@ export class EventContextMapper<TMessage, UEvent extends IncomingEvent, VRespons
     context: EventContext<TMessage, UEvent, VResponse, WEvent, XContext>,
     middleware: Array<Middleware<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>>>
   ): Promise<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>> {
-    return Pipeline
+    return await Pipeline
       .create<EventContext<TMessage, UEvent, VResponse, WEvent, XContext>>()
       .send(context)
       .through(middleware)

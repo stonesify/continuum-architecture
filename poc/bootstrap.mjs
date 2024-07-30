@@ -1,6 +1,6 @@
-import * as app from "./dist/app.js";
+import * as app from "./.stone/app.js";
 // import { BlueprintBuilder } from "./dist/core.js";
-import { StoneApplication } from "./dist/core.js";
+import { StoneApplication } from "./.stone/core.js";
 
 // const blueprint = new BlueprintBuilder(app).build()
 

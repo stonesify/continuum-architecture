@@ -16,7 +16,7 @@ export interface ErrorHandler<TError extends Error, UContext, VResponse> {
 
 export interface ServiceContainer {
   make: <T>(key: unknown) => T
-  alias (key: unknown, aliases: string | string[]): this
+  alias: (key: unknown, aliases: string | string[]) => this
   bound: (key: unknown) => boolean
   resolve: <T>(key: unknown) => T
   instance: (key: unknown, value: unknown, alias?: string | string[]) => this

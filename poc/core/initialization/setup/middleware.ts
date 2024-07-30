@@ -41,7 +41,7 @@ export function AdapterOnInitSubscribersSetupMMiddleware<T extends BlueprintCont
           .blueprint
           .get<ServicePovider[]>('stone.kernel.providers', [])
           .filter((provider) => Reflect.has(provider, 'onInit'))
-          .map((provider) => () => provider.onInit?.())
+          .map((provider) => async () => await provider.onInit?.())
       )
     })
 
@@ -75,7 +75,7 @@ export function KernelMiddlewareSetupMMiddleware<T extends BlueprintContext> (co
   )
 
   context.blueprint.add(
-    'stone.kernel.middleware.incoming', 
+    'stone.kernel.middleware.incoming',
     middleware
       .filter((module) => {
         const options = getKernelMiddlewareOptions(module)

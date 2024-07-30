@@ -14,7 +14,7 @@ const inputs = {
 export default Object.entries(inputs).map(([name, input]) => ({
 	input,
 	output: [
-    { format: 'es', file: `dist/${name}.js` }
+    { format: 'es', file: `.stone/${name}.js` }
   ],
   plugins: [
     multi(),

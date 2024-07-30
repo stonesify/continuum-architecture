@@ -14,8 +14,8 @@ export class IncomingEvent extends Event<Record<string, unknown>> {
    */
   static INCOMING_EVENT: symbol = Symbol.for('Stone@IncomingEvent')
 
-  constructor (data: Record<string, unknown>) {
-    super(IncomingEvent.INCOMING_EVENT, data)
+  constructor (data: Record<string, unknown>, type: string | symbol = IncomingEvent.INCOMING_EVENT) {
+    super(data, type)
   }
 
   /**
